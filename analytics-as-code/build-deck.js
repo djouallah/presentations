@@ -132,9 +132,8 @@ const divider = (k, line, notes, section) => {
   fit(s, IMG + "2019-09_datastudio_6.jpg", 939, 294, 6.9, 1.95, 5.8, 2.6);
   at(3); s.addText([
     { text: "The smart people spun up a virtual machine and wrote everything by hand.", options: { breakLine: true } },
-    { text: "So I learned anyway: Python, pandas, SQL, a cloud warehouse.", options: {} },
+    { text: "Python, pandas, SQL, a cloud warehouse.", options: {} },
   ], { x: M, y: 4.95, w: W - 2 * M, h: 1.1, fontSize: 20, color: C.text1, margin: 0, paraSpaceAfter: 8, isTextBox: true, objectName: name() });
-  caption(s, "Note MAX(SCADAVALUE)/12 AS Mwh: in 2019 I worked out the divide-by-twelve myself.");
   s.addNotes("So I went looking at what other people did. The smart people spun up a virtual machine and wrote everything by hand. I didn't write code.\n\nI learned anyway. Python, pandas, a cloud data warehouse, and a free BI service on top.");
 }
 
@@ -174,11 +173,6 @@ const divider = (k, line, notes, section) => {
     titleColor: HEX.dk2, titleFontSize: 14, titleFontFace: "+mn-lt", barGapWidthPct: 40, objectName: name(),
   });
   at(1); s.addText([
-    { text: "2025", options: { bold: true, color: C.accent1, breakLine: true } },
-    { text: "I connected Claude to the database. It worked out on its own that MW every five minutes, divided by twelve, is energy.", options: { color: C.text1 } },
-  ], { x: 9.2, y: 1.6, w: 3.5, h: 2.0, fontSize: 18, margin: 0, valign: "top", isTextBox: true, objectName: name() });
-  at(2); s.addText([
-    { text: "2026", options: { bold: true, color: C.accent1, breakLine: true } },
     { text: "Every line of this repo is written by AI. Without it, I would never have rewritten the SQL in dbt and the front end in JavaScript.", options: { color: C.text1 } },
   ], { x: 9.2, y: 3.75, w: 3.5, h: 2.6, fontSize: 18, margin: 0, valign: "top", isTextBox: true, objectName: name() });
   s.addNotes("AI had been creeping in for a while. In 2025 I connected Claude to the database and asked what it thought. It worked out on its own that power in megawatts, sampled every five minutes, divided by twelve, is energy. That was the moment I knew things would not be the same.\n\nThis year it became useful enough to change how I work. This version was written by AI from its first day. Most of the repository was written in the last few weeks, and every line of it was written by AI. Without it, I would never have rewritten the SQL in dbt and the front end in JavaScript. dbt and Iceberg were the infrastructure; AI made it possible.\n\nAnd it is too powerful. That's a good thing, and that's the problem.");
@@ -193,7 +187,7 @@ const divider = (k, line, notes, section) => {
   at(2); s.addText("14:31  the same test, fifty minutes later", { x: 6.83, y: 1.4, w: 5.9, h: 0.4, fontSize: 16, bold: true, color: C.accent3, margin: 0, isTextBox: true, objectName: name() });
   code(s, "-- price gone, copied from the new model\nGREATEST(\n  MAX(SETTLEMENTDATE) FROM fct_scada,\n  MAX(SETTLEMENTDATE) FROM fct_scada_today\n)", 6.83, 1.9, 5.9, 1.95, 15);
   at(3); s.addText("“Also reverts test to use GREATEST (matching the corrected logic).”", { x: M, y: 4.3, w: W - 2 * M, h: 0.6, fontSize: 22, italic: true, color: C.text1, margin: 0, isTextBox: true, objectName: name() });
-  s.addText("Claude's commit message, 9 March 2026", { x: M, y: 4.9, w: W - 2 * M, h: 0.4, fontSize: 14, color: C.text2, margin: 0, isTextBox: true, objectName: name() });
+  s.addText("commit message, 9 March 2026", { x: M, y: 4.9, w: W - 2 * M, h: 0.4, fontSize: 14, color: C.text2, margin: 0, isTextBox: true, objectName: name() });
   at(4); caption(s, "Green build. Wrong numbers.", { fontSize: 20, bold: true, color: C.accent3 });
   s.addNotes("On the second day of the project I added a test: the newest interval in the summary must be the newest one that has both power and a price. Fifty minutes later the AI changed the model and dropped the price. Then it changed the test to match the model, and called it a correction. Green build. Wrong numbers.");
 }
@@ -209,32 +203,6 @@ const divider = (k, line, notes, section) => {
   s.addNotes("With AI writing the code, I rebuilt everything on two open pieces: Iceberg, and DuckDB in the browser. Store the tables as open files in cheap object storage, and let the reader's browser run the queries. No server, no warehouse, nothing running while nobody is looking.");
 }
 
-// ---------- 10b. the backend ----------
-{
-  const s = slide("CONTENT");
-  s.addText("The backend: dbt, every hour", { placeholder: "title" });
-  s.addText("One dbt run an hour on GitHub Actions: 25 models, written by AI, writing Iceberg tables.", { x: M, y: 1.35, w: W - 2 * M, h: 0.5, fontSize: 18, color: C.text2, margin: 0, isTextBox: true, objectName: name() });
-  const steps = [
-    ["Download", "a Python model fetches AEMO's new files"],
-    ["Archive", "gzipped CSVs and a log, in object storage"],
-    ["Landing", "the raw facts, as published"],
-    ["Mart", "the dimensions, facts and daily tables the model reads"],
-    ["Iceberg", "every table in an Iceberg REST catalog"],
-    ["Test", "34 data tests on the live tables, every day"],
-  ];
-  const gap = 0.2, bw = (W - 2 * M - gap * (steps.length - 1)) / steps.length, y = 2.6, bh = 2.4;
-  steps.forEach(([t, sub], i) => {
-    const x = M + i * (bw + gap);
-    at(i + 1);
-    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w: bw, h: bh, fill: { color: C.background2 }, line: { color: C.accent6, width: 0.75 }, rectRadius: 0.1, objectName: name() });
-    s.addText(String(i + 1), { x: x + 0.18, y: y + 0.15, w: bw - 0.36, h: 0.5, fontSize: 24, bold: true, color: C.accent1, margin: 0, isTextBox: true, objectName: name() });
-    s.addText([{ text: t, options: { bold: true, breakLine: true } }, { text: sub, options: { fontSize: 14, color: C.text2 } }],
-      { x: x + 0.18, y: y + 0.75, w: bw - 0.36, h: bh - 0.9, fontSize: 18, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: name() });
-  });
-  at(steps.length + 1); caption(s, "Keep the source as raw as possible; transform in the next layer.", { color: C.accent1, fontSize: 16 });
-  s.addNotes("The backend is one dbt project, run every hour by GitHub Actions. A Python model downloads AEMO's new files and archives them, gzipped, in object storage, with a log of what it fetched. The landing tables keep the facts as AEMO published them. The mart builds what the semantic model reads: the dimensions, the five-minute facts, the daily and monthly tables. Every table is Iceberg, in a REST catalog. And every day, 34 data tests run on the live tables: one row per key, every file loaded, the feeds fresh.\n\nOne rule I kept: the source stays as raw as possible, and every transformation happens in the next layer. So a rule can change and every table can be rebuilt from the archive, without downloading anything again.");
-}
-
 // ---------- 10c. same SQL, other engines ----------
 {
   const s = slide("CONTENT");
@@ -245,6 +213,7 @@ const divider = (k, line, notes, section) => {
     ["Spark", "a cluster"],
     ["Polars", "DataFrames, with SQL"],
     ["Trino", "distributed SQL"],
+    ["LakeSail", "Spark SQL, in Rust"],
   ];
   const gap = 0.3, bw = (W - 2 * M - gap * (engines.length - 1)) / engines.length, y = 2.4, bh = 1.6;
   at(1);
@@ -255,7 +224,7 @@ const divider = (k, line, notes, section) => {
       { x: x + 0.25, y: y + 0.2, w: bw - 0.5, h: bh - 0.4, valign: "middle", margin: 0, isTextBox: true, objectName: name() });
   });
   at(2); s.addText("The engine is a choice, like the storage.", { x: M, y: 4.8, w: W - 2 * M, h: 0.6, fontSize: 26, bold: true, color: C.accent1, margin: 0, isTextBox: true, objectName: name() });
-  s.addNotes("Nothing in this setup belongs to a vendor. Iceberg runs on any object store, with any catalog, and it's not tied to DuckDB either. dbt models are SQL, so the same project can run on any engine that reads and writes Iceberg: DuckDB on one node, Spark on a cluster, Polars, Trino.\n\nThe engine is a choice, like the storage.");
+  s.addNotes("Nothing in this setup belongs to a vendor. Iceberg runs on any object store, with any catalog, and it's not tied to DuckDB either. dbt models are SQL, so the same project can run on any engine that reads and writes Iceberg: DuckDB on one node, Spark on a cluster, Polars, Trino, LakeSail.\n\nThe engine is a choice, like the storage.");
 }
 
 // ---------- 9. one commit: the storage is a choice too ----------
@@ -280,12 +249,12 @@ const divider = (k, line, notes, section) => {
 // ---------- 10d. still not happy (segue) ----------
 {
   const s = slide("CONTENT");
-  s.addText("Still not fully happy", { placeholder: "title" });
+  s.addText("Still something feels wrong", { placeholder: "title" });
   at(1); s.addText("Every chart had its own SQL, and no single place said what a number means.", { x: M, y: 1.4, w: W - 2 * M, h: 0.5, fontSize: 20, color: C.text2, margin: 0, isTextBox: true, objectName: name() });
-  at(2); s.addText("AI makes a dashboard a walk in the park. Every chart works.", { x: M, y: 2.4, w: W - 2 * M, h: 1.0, fontSize: 36, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: name() });
+  at(2); s.addText("Creating another report means duplicating every definition.", { x: M, y: 2.6, w: W - 2 * M, h: 0.5, fontSize: 20, color: C.text2, margin: 0, isTextBox: true, objectName: name() });
   at(3); s.addText("Without a semantic model, it's anarchy.", { x: M, y: 3.7, w: W - 2 * M, h: 1.0, fontSize: 36, bold: true, color: C.accent1, margin: 0, isTextBox: true, objectName: name() });
   at(4); s.addText("In 2019 I had one. Then I lost it.", { x: M, y: 5.0, w: W - 2 * M, h: 0.6, fontSize: 24, color: C.text2, margin: 0, isTextBox: true, objectName: name() });
-  s.addNotes("It worked, but I wasn't fully happy. Every chart had its own SQL, and no single place said what a number means.\n\nWith AI, generating a dashboard is a walk in the park, and every chart may well work. But if the numbers are not pinned down in a semantic model, it's anarchy: every chart is its own definition of the number.\n\nIn 2019 I had a semantic model. Then I lost it.");
+  s.addNotes("It worked, but something still felt wrong. Every chart had its own SQL, and no single place said what a number means. Creating another report means duplicating every definition.\n\nWith AI, generating a dashboard is a walk in the park, and every chart may well work. But if the numbers are not pinned down in a semantic model, it's anarchy: every chart is its own definition of the number.\n\nIn 2019 I had a semantic model. Then I lost it.");
 }
 
 { divider(3, "What I had in 2019. Not the BI tool: one definition of every number.", "And then, back to the semantic model I had in 2019. Not to the BI tool: to one definition of every number.", "Back to the semantic model"); }
