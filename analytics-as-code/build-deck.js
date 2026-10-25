@@ -358,30 +358,27 @@ const divider = (k, line, notes, section) => {
 {
   const s = slide("CONTENT");
   s.addText("Taming AI", { placeholder: "title" });
-  // Lines the agent wrote into the page, removed in analytics-as-code 717e280 (7 October 2026)
-  at(1);
-  s.addText("What the agent wrote in the page, with the semantic model right there", { x: M, y: 1.35, w: 7.4, h: 0.35, fontSize: 16, bold: true, color: C.accent3, margin: 0, isTextBox: true, objectName: name() });
-  code(s,
-    "const total = rows.reduce((s, r) => s + r.mwh, 0);\n" +
-    "const share = v => `${(100 * v / total).toFixed(…)}%`;\n" +
-    "genMw += g.mw;\n" +
-    "if (g.unit?.renewable) reMw += g.mw;\n" +
-    "const restMw = rest.reduce((s, r) => s + r.mw, 0);\n" +
-    "byStation.get(k).mwh += u.mwh ?? 0;\n" +
-    "setKpiNumber('kpiGen', average.reduce((s, r) => s + r.avg, 0), …",
-    M, 1.75, 7.4, 2.2, 14);
-  at(2);
-  s.addText("266", { x: M, y: 4.25, w: 2.6, h: 1.2, fontSize: 72, bold: true, color: C.accent3, margin: 0, valign: "middle", isTextBox: true, objectName: name() });
-  s.addText("places where the page did its own arithmetic: totals, shares, changes, sums by station.", { x: 2.85, y: 4.35, w: 5.15, h: 1.1, fontSize: 18, color: C.text2, margin: 0, valign: "middle", isTextBox: true, objectName: name() });
-  const line = (t, y, h, color, size = 22) => s.addText(t, { x: 8.4, y, w: W - M - 8.4, h, fontSize: size, bold: true, color, margin: 0, valign: "top", isTextBox: true, objectName: name() });
-  at(3); line("Its job is to build a dashboard. I told it: use the measures of the model. Again and again.", 1.35, 1.5, C.text1);
-  at(4); line("A local sum is always closer than a measure.", 2.95, 1.0, C.text1);
-  at(5);
-  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 8.4, y: 4.05, w: W - M - 8.4, h: 1.0, fill: { color: C.background2 }, line: { color: C.accent2, width: 1.5 }, rectRadius: 0.08, objectName: name() });
-  s.addText([{ text: "So a lint fails the publish", options: { bold: true, fontSize: 15, color: C.accent2, breakLine: true } }, { text: "any + − × ÷ or reduce in the page: 0 allowed", options: { fontSize: 14, color: C.text1 } }],
-    { x: 8.6, y: 4.1, w: W - M - 8.8, h: 0.9, valign: "middle", margin: 0, isTextBox: true, objectName: name() });
-  at(6); line("In real life, nobody will do that.", 5.3, 0.6, C.accent3, 26);
-  s.addNotes("This one is the most important thing I learned.\n\nThe agent's job is to build a dashboard. The semantic model is right there. I told it, again and again: use the measures of the model. And it does the maths in the page anyway. A total here, a share there, a change between two numbers, a sum by station. Because it's convenient: the rows are already in the page, and a reduce is one line away. A measure means going back to the model.\n\nOn the 7th of October I counted: 266 places where the page did its own arithmetic. Some of it was drawing, an axis or a bubble size, and that lives in its own file now. The rest were numbers, each a new definition of a figure that already had one.\n\nIt drove me nuts. So now a lint fails the publish: any plus, minus, times, divide or reduce in the page, and the build is red. Zero allowed.\n\nIn real life, nobody will do that. Nobody writes a linter for their Friday report. So if your agent writes the dashboard, expect it to write its own numbers too.");
+  s.addText("The agent's job: build the dashboard. The model has the measures. It does the maths in the page anyway.", { x: M, y: 1.35, w: W - 2 * M, h: 0.5, fontSize: 18, color: C.text2, margin: 0, isTextBox: true, objectName: name() });
+  const L = M, R = 7.0, lw = 6.0, rw = W - M - R;
+  s.addText("What the agent wrote in the page", { x: L, y: 2.05, w: lw, h: 0.35, fontSize: 16, bold: true, color: C.accent3, margin: 0, isTextBox: true, objectName: name() });
+  s.addText("What it should have used", { x: R, y: 2.05, w: rw, h: 0.35, fontSize: 16, bold: true, color: C.accent2, margin: 0, isTextBox: true, objectName: name() });
+  [
+    ["share = 100 * mw / total", "[Generation share]"],
+    ["change = (now - before) / before", "[Average generation MW change]"],
+    ["demand = demand + rooftop", "[Demand with rooftop MW]"],
+  ].forEach(([page, measure], i) => {
+    const y = 2.5 + i * 0.85;
+    at(i + 1);
+    code(s, page, L, y, lw, 0.7, 18);
+    s.addText("→", { x: L + lw, y, w: R - L - lw, h: 0.7, fontSize: 24, color: C.accent4, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: name() });
+    code(s, measure, R, y, rw, 0.7, 18);
+  });
+  at(4);
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: L, y: 5.3, w: lw, h: 0.9, fill: { color: C.background2 }, line: { color: C.accent2, width: 1.5 }, rectRadius: 0.08, objectName: name() });
+  s.addText([{ text: "So a lint fails the publish", options: { bold: true, fontSize: 16, color: C.accent2, breakLine: true } }, { text: "any + − × ÷ in the page, and the build is red", options: { fontSize: 15, color: C.text1 } }],
+    { x: L + 0.2, y: 5.35, w: lw - 0.4, h: 0.8, valign: "middle", margin: 0, isTextBox: true, objectName: name() });
+  at(5); s.addText("In real life, nobody will do that.", { x: R, y: 5.4, w: rw, h: 0.7, fontSize: 28, bold: true, color: C.accent3, margin: 0, valign: "middle", isTextBox: true, objectName: name() });
+  s.addNotes("This one is the most important thing I learned.\n\nThe agent's job is to build the dashboard. The semantic model is right there, with the measures. I told it, again and again: use the measures. And it does the maths in the page anyway. A share: divide by the total. A change: now minus before. Demand: add rooftop solar. Every one of those is already a measure in the model. Because it's convenient: the rows are already in the page, the division is one line away, and the measure means going back to the model.\n\nEvery one of those lines is a new definition of a number that already had one.\n\nIt drove me nuts. So now a lint fails the publish: any plus, minus, times or divide in the page, and the build is red.\n\nIn real life, nobody will do that. Nobody writes a linter for their Friday report. So if your agent writes the dashboard, expect it to write its own numbers too.");
 }
 
 // ---------- 16b. how it works: the /how/ page, card by card ----------
