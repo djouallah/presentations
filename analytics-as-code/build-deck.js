@@ -72,7 +72,7 @@ const fit = (s, path, iw, ih, x, y, w, h, extra = {}) => {
 };
 
 // section divider: number, title, one line, and the journey as a timeline with this stop lit
-const STOPS = [["The beginning", "2019"], ["The rabbit hole", "2019–2025"], ["dbt, Iceberg and AI", "2025–2026"], ["Back to where I started", "August 2026"], ["Where we're going", "next"]];
+const STOPS = [["The beginning", "2019"], ["The rabbit hole", "2019–2025"], ["dbt, Iceberg and AI", "2025–2026"], ["Back to the semantic model", "August 2026"], ["Where we're going", "next"]];
 const divider = (k, line, notes, section) => {
   const s = slide("BLANK", section);
   s.addText(String(k + 1).padStart(2, "0"), { x: M, y: 1.3, w: 3, h: 1.0, fontSize: 40, bold: true, color: C.accent1, margin: 0, isTextBox: true, objectName: name() });
@@ -288,7 +288,7 @@ const divider = (k, line, notes, section) => {
   s.addNotes("It worked, but I wasn't fully happy. Every chart had its own SQL, and no single place said what a number means.\n\nWith AI, generating a dashboard is a walk in the park, and every chart may well work. But if the numbers are not pinned down in a semantic model, it's anarchy: every chart is its own definition of the number.\n\nIn 2019 I had a semantic model. Then I lost it.");
 }
 
-{ divider(3, "The semantic model, not the BI tool", "And then, back to where I started. Not to the BI tool: to the semantic model I had in 2019.", "Back to where I started"); }
+{ divider(3, "What I had in 2019. Not the BI tool: one definition of every number.", "And then, back to the semantic model I had in 2019. Not to the BI tool: to one definition of every number.", "Back to the semantic model"); }
 
 // ---------- 10. architecture: one model, many front ends ----------
 {
