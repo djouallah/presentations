@@ -767,6 +767,21 @@ section("03 Engines", "03", "The engines", `${TRIED.total} engines tried, one ca
 }
 shotSlide("03 Engines", "Who they are", "engines", null,
   "From the dashboard's Engines tab: who started each engine, what it's written in and how it runs (the tab also has who governs it, the licence and how you install it). The subject is the Python engines: DuckDB, Polars, chDB, LakeSail. The cluster engines are there as a reference: Spark, Spark with Gluten/Velox, Trino, StarRocks, Databend. All of them talk to the same catalog; none of them needed anything special.");
+// Why DataFusion is not in the bench: the dashboard's "Tried, not added" list (datafusion-python#1097, apache/datafusion-iceberg).
+{
+  const s = content("03 Engines", "Why DataFusion isn’t here",
+    "DataFusion is everywhere: LakeSail and DataFusion Comet are built on it. But as an engine you use directly from Python, not really. The Python package has no Iceberg support: no catalog, no scan, no write (datafusion-python#1097). The Iceberg table provider is a separate repo, apache/datafusion-iceberg: it reads and writes, but it is Rust only and has no release yet. So it is not in the bench.");
+  const lines = [
+    "It’s everywhere: LakeSail and DataFusion Comet are built on it.",
+    "The Python package has no Iceberg: no catalog, no scan, no write.",
+    "Iceberg support is a separate repo, apache/datafusion-iceberg: Rust only, no release yet.",
+  ];
+  lines.forEach((t, i) => {
+    at(i + 1);
+    T(s, t, { x: MX, y: 1.8 + i * 1.0, w: CW, h: 0.6, fontSize: 24, color: C.text1, valign: "middle" });
+  });
+  T(s, "datafusion-python#1097", { x: MX, y: 6.3, w: CW, h: 0.4, fontSize: 14, color: C.text2 });
+}
 shotSlide("03 Engines", "The Iceberg support grid", "iceberg", null,
   "Speed doesn't matter if the engine can't do your operation. The good news first: create, append, file pruning, time travel and concurrent appends work almost everywhere. Then the differences: who does MERGE, DELETE, partition evolution, branches. Pick on this, not on speed. Side note: Spark has the best fault tolerance and the widest coverage.");
 
