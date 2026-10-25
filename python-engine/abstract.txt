@@ -1,0 +1,30 @@
+Python Data Engines: State of the Union 2026
+keyboard_arrow_up
+Mimoune Djouallah
+Applied AI & Data
+
+Every Python data engine looks impressive when you throw a 64 core machine at it. That is not this talk.
+
+ 
+
+This one runs on a single 16 GB notebook and asks a simpler question: in 2026, how have these engines actually evolved on modest hardware? What improved, what genuinely got better, and what has not changed at all since last year?
+
+ 
+
+We walk through an honest scorecard across DuckDB, Polars, Daft, DataFusion, chDB, and LakeSail, all running the same workload from 2025.
+
+ 
+
+You will leave with five clear takeaways:
+
+ 
+
+Streaming in Polars has improved significantly
+
+Iceberg has matured and reached real industry adoption
+
+The missing standard DataFrame API remains the number one source of friction
+
+DuckDB remains my benchmark for local analytics and continues to set the bar
+
+LakeSail is doing many things right, but still needs an effective caching layer to reach its full potential

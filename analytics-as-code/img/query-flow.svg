@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" font-family="'Segoe UI', Inter, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475467"/>
+    </marker>
+    <marker id="arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+    <style>
+      .card { fill: #ffffff; stroke: #d0d5dd; stroke-width: 1.5; }
+      .h { font-size: 17px; font-weight: 600; fill: #101828; }
+      .h2 { font-size: 15px; font-weight: 600; fill: #101828; }
+      .sub { font-size: 13.5px; fill: #667085; }
+      .t { font-size: 15px; fill: #344054; }
+      .foot { font-size: 13px; fill: #667085; font-style: italic; }
+      .mono { font-family: Consolas, 'JetBrains Mono', Menlo, monospace; font-size: 12.5px; fill: #101828; }
+      .code { font-family: Consolas, 'JetBrains Mono', Menlo, monospace; font-size: 11.5px; fill: #101828; }
+      .json { font-family: Consolas, 'JetBrains Mono', Menlo, monospace; font-size: 12.5px; fill: #475467; }
+      .k { fill: #1e3a8a; }
+      .s { fill: #b54708; }
+      .n { fill: #067647; }
+      .kw { fill: #7a2e0e; font-weight: 600; }
+      .lbl { font-size: 12.5px; fill: #475467; }
+      .flow { stroke: #475467; stroke-width: 2; fill: none; }
+      .step { fill: #101828; }
+      .stepn { font-size: 13px; font-weight: 700; fill: #ffffff; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" fill="#ffffff"/>
+
+  <!-- title -->
+  <text x="40" y="48" font-size="26" font-weight="700" fill="#101828">What happens when you click a visual in Power BI</text>
+  <text x="40" y="76" font-size="15" fill="#667085">One click: a visual query, one DAX query, several queries against the tables</text>
+
+  <!-- ============ semantic model: TMSL ============ -->
+  <path d="M300,100 H836 L860,124 V384 H300 Z" fill="#eff6ff" stroke="#2563eb" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M836,100 V124 H860" fill="none" stroke="#2563eb" stroke-width="2" stroke-linejoin="round"/>
+  <text x="318" y="130" font-size="17" font-weight="700" fill="#1e3a8a">Semantic model <tspan font-weight="400" fill="#3b82f6">model.bim (TMSL)</tspan></text>
+  <g class="json">
+    <text x="318" y="160">{</text>
+    <text x="331.8" y="177"><tspan class="k">"compatibilityLevel"</tspan>: <tspan class="n">1604</tspan>,</text>
+    <text x="331.8" y="194"><tspan class="k">"model"</tspan>: {</text>
+    <text x="345.5" y="211"><tspan class="k">"tables"</tspan>: [{</text>
+    <text x="359.3" y="228"><tspan class="k">"name"</tspan>: <tspan class="s">"fct_summary"</tspan>,</text>
+    <text x="359.3" y="245"><tspan class="k">"columns"</tspan>: [{ <tspan class="k">"name"</tspan>: <tspan class="s">"mw"</tspan>, <tspan class="k">"dataType"</tspan>: <tspan class="s">"decimal"</tspan> }],</text>
+    <text x="359.3" y="262"><tspan class="k">"measures"</tspan>: [{ <tspan class="k">"name"</tspan>: <tspan class="s">"Generation MWh"</tspan>,</text>
+    <text x="373.0" y="279"><tspan class="k">"expression"</tspan>: <tspan class="s">"SUM(fct_summary_daily[output_mwh]) + ..."</tspan> }]</text>
+    <text x="345.5" y="296">}],</text>
+    <text x="345.5" y="313"><tspan class="k">"relationships"</tspan>: [{ <tspan class="k">"fromTable"</tspan>: <tspan class="s">"fct_summary"</tspan>, <tspan class="k">"fromColumn"</tspan>: <tspan class="s">"DUID"</tspan>,</text>
+    <text x="359.3" y="330"><tspan class="k">"toTable"</tspan>: <tspan class="s">"dim_duid"</tspan>, <tspan class="k">"toColumn"</tspan>: <tspan class="s">"DUID"</tspan> }]</text>
+    <text x="331.8" y="347">}</text>
+    <text x="318" y="364">}</text>
+  </g>
+
+  <!-- Ossie tag -->
+  <line x1="860" y1="136" x2="892" y2="136" stroke="#2563eb" stroke-width="2"/>
+  <rect x="892" y="116" width="250" height="40" rx="20" fill="#2563eb"/>
+  <text x="1017" y="142" font-size="16" font-weight="700" fill="#ffffff" text-anchor="middle">Ossie can describe this</text>
+  <g font-size="15" fill="#475467">
+    <text x="892" y="186">the same model as an Ossie file:</text>
+    <text x="892" y="208">datasets, fields, relationships,</text>
+    <text x="892" y="230">metrics in DAX</text>
+  </g>
+
+  <!-- model read by the engine -->
+  <line x1="760" y1="384" x2="760" y2="436" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-accent)"/>
+  <text x="770" y="416" font-size="13.5" fill="#2563eb">reads</text>
+
+  <!-- ============ 1 report ============ -->
+  <rect class="card" x="40" y="470" width="190" height="270" rx="12"/>
+  <text class="h" x="56" y="498">Report</text>
+  <line x1="54" y1="676" x2="216" y2="676" stroke="#d0d5dd"/>
+  <rect x="58"  y="606" width="22" height="70" rx="2" fill="#d0d5dd"/>
+  <rect x="90"  y="566" width="22" height="110" rx="2" fill="#344054"/>
+  <rect x="122" y="621" width="22" height="55" rx="2" fill="#d0d5dd"/>
+  <rect x="154" y="646" width="22" height="30" rx="2" fill="#d0d5dd"/>
+  <rect x="186" y="636" width="22" height="40" rx="2" fill="#d0d5dd"/>
+  <g font-size="11.5" fill="#667085" text-anchor="middle">
+    <text x="69" y="693">QLD</text>
+    <text x="101" y="693" fill="#101828" font-weight="700">NSW</text>
+    <text x="133" y="693">VIC</text>
+    <text x="165" y="693">SA</text>
+    <text x="197" y="693">TAS</text>
+  </g>
+  <path d="M0,0 L0,17 L4.5,13 L7.5,20 L10,19 L7,12 L12.5,12 Z" transform="translate(107,584)" fill="#ffffff" stroke="#101828" stroke-width="1.4" stroke-linejoin="round"/>
+  <text class="foot" x="56" y="726">a user clicks NSW</text>
+
+  <!-- ============ 2 visual query ============ -->
+  <rect class="card" x="270" y="470" width="330" height="270" rx="12"/>
+  <text class="h" x="286" y="498">Visual query</text>
+  <g class="code" font-size="12">
+    <text x="286" y="534">{</text>
+    <text x="299.2" y="553"><tspan class="k">select</tspan>: {</text>
+    <text x="312.4" y="572"><tspan class="k">fuel</tspan>: <tspan class="s">'dim_duid.FuelSourceDescriptor'</tspan>,</text>
+    <text x="312.4" y="591"><tspan class="k">mwh</tspan>: <tspan class="s">'Generation MWh'</tspan></text>
+    <text x="299.2" y="610">},</text>
+    <text x="299.2" y="629"><tspan class="k">where</tspan>: [[<tspan class="s">'dim_region.Region'</tspan>, <tspan class="s">'='</tspan>, <tspan class="s">'NSW'</tspan>]]</text>
+    <text x="286" y="648">}</text>
+  </g>
+  <text class="foot" x="286" y="726">fields and filters, no DAX</text>
+
+  <!-- ============ 3 Power BI engine ============ -->
+  <rect x="640" y="440" width="600" height="320" rx="16" fill="#f2f4f7" stroke="#98a2b3" stroke-width="1.5"/>
+  <text x="664" y="476" font-size="19" font-weight="700" fill="#101828">Power BI engine</text>
+  <text class="sub" x="830" y="476">formula engine + VertiPaq</text>
+
+  <text class="h2" x="664" y="510">writes the DAX</text>
+  <rect class="card" x="660" y="522" width="286" height="96" rx="8"/>
+  <g class="code">
+    <text x="672" y="545"><tspan class="kw">EVALUATE</tspan> SUMMARIZECOLUMNS(</text>
+    <text x="684.7" y="563">'dim_duid'[FuelSourceDescriptor],</text>
+    <text x="684.7" y="581">TREATAS({"NSW"}, 'dim_region'[Region]),</text>
+    <text x="684.7" y="599">"mwh", [Generation MWh])</text>
+  </g>
+  <g class="t">
+    <text x="664" y="654">• applies filter context</text>
+    <text x="664" y="680">• evaluates the measures</text>
+    <text x="664" y="706">• combines the results</text>
+  </g>
+
+  <!-- 4 several queries -->
+  <text x="988" y="510" font-size="14.5" font-weight="600" fill="#101828">several queries</text>
+  <g>
+    <rect class="card" x="966" y="522" width="254" height="68" rx="8"/>
+    <text class="lbl" x="980" y="541">query 1 · newest whole day</text>
+    <text class="mono" x="980" y="562">MAX(date)</text>
+    <text class="mono" x="980" y="580">FROM fct_summary_daily</text>
+
+    <rect class="card" x="966" y="600" width="254" height="68" rx="8"/>
+    <text class="lbl" x="980" y="619">query 2 · the daily table</text>
+    <text class="mono" x="980" y="640">SUM(output_mwh) BY Fuel</text>
+    <text class="mono" x="980" y="658">FROM fct_summary_daily</text>
+
+    <rect class="card" x="966" y="678" width="254" height="68" rx="8"/>
+    <text class="lbl" x="980" y="697">query 3 · the days after it</text>
+    <text class="mono" x="980" y="718">SUM(mw) BY Fuel</text>
+    <text class="mono" x="980" y="736">FROM fct_summary</text>
+  </g>
+  <line class="flow" x1="947" y1="570" x2="963" y2="570" marker-end="url(#arrow)"/>
+
+  <!-- ============ catalog + OneLake ============ -->
+  <rect class="card" x="1300" y="470" width="260" height="140" rx="12"/>
+  <text class="h" x="1316" y="498">Catalog</text>
+  <text class="sub" x="1316" y="518">lakehouse nem · schema mart</text>
+  <g class="mono" font-size="12">
+    <text x="1316" y="546">fct_summary</text><text x="1446" y="546">→ files</text>
+    <text x="1316" y="566">fct_summary_daily</text><text x="1446" y="566">→ files</text>
+    <text x="1316" y="586">dim_duid</text><text x="1446" y="586">→ files</text>
+  </g>
+
+  <path d="M1300,660 V738 A130,16 0 0 0 1560,738 V660" fill="#ffffff" stroke="#d0d5dd" stroke-width="1.5"/>
+  <ellipse cx="1430" cy="660" rx="130" ry="16" fill="#f2f4f7" stroke="#d0d5dd" stroke-width="1.5"/>
+  <text class="h" x="1430" y="698" text-anchor="middle">OneLake</text>
+  <text class="t" x="1430" y="720" text-anchor="middle">parquet + metadata</text><text class="sub" x="1430" y="739" text-anchor="middle">(Iceberg or Delta)</text>
+
+  <line class="flow" x1="1430" y1="611" x2="1430" y2="641" marker-end="url(#arrow)"/>
+  <line class="flow" x1="1242" y1="534" x2="1296" y2="534" marker-end="url(#arrow)"/>
+  <text class="lbl" x="1271" y="524" text-anchor="middle">lookup</text>
+  <line class="flow" x1="1298" y1="702" x2="1244" y2="702" marker-end="url(#arrow)"/>
+  <text class="lbl" x="1271" y="692" text-anchor="middle">columns</text>
+
+  <!-- ============ forward arrows ============ -->
+  <line class="flow" x1="232" y1="605" x2="266" y2="605" marker-end="url(#arrow)"/>
+  <line class="flow" x1="602" y1="570" x2="656" y2="570" marker-end="url(#arrow)"/>
+
+  <!-- ============ 5 back to the visual ============ -->
+  <path class="flow" d="M940,762 V830 H135 V744" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+  <rect x="300" y="814" width="378" height="32" fill="#ffffff"/>
+  <circle class="step" cx="320" cy="830" r="13"/>
+  <text class="stepn" x="320" y="835">5</text>
+  <text x="342" y="836" font-size="16" fill="#344054">the result table goes back, the visual redraws</text>
+
+  <!-- step numbers -->
+  <circle class="step" cx="40" cy="470" r="13"/><text class="stepn" x="40" y="475">1</text>
+  <circle class="step" cx="270" cy="470" r="13"/><text class="stepn" x="270" y="475">2</text>
+  <circle class="step" cx="640" cy="440" r="13"/><text class="stepn" x="640" y="445">3</text>
+  <circle class="step" cx="966" cy="505" r="13"/><text class="stepn" x="966" y="510">4</text>
+</svg>
