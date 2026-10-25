@@ -73,6 +73,16 @@ const fit = (s, path, iw, ih, x, y, w, h, extra = {}) => {
   s.addImage({ path, x: x + (w - ww) / 2, y: y + (h - hh) / 2, w: ww, h: hh, objectName: name(), ...extra });
 };
 
+// a small label over a table
+const label = (s, t, x, y, color) => s.addText(t, { x, y, w: 5.5, h: 0.35, fontSize: 16, bold: true, color, margin: 0, isTextBox: true, objectName: name() });
+// one row of a small table: drawn row by row, so each row can appear on its own click.
+// cells are values or { text, color, bold }; widths in inches
+const ROW_H = 0.42;
+const tableRow = (s, x, y, widths, cells, { head = false, fill, fontSize = 16, rowH = ROW_H } = {}) => s.addTable([cells.map((c, i) => {
+  const o = typeof c === "object" ? c : { text: c };
+  return { text: String(o.text), options: { color: o.color || (head ? HEX.dk2 : HEX.dk1), bold: head || !!o.bold, align: i ? "right" : "left", fill: { color: fill || (head ? HEX.lt1 : HEX.lt2) } } };
+})], { x, y, w: widths.reduce((a, b) => a + b, 0), colW: widths, rowH, h: rowH, fontFace: "Consolas", fontSize, valign: "middle", margin: 0.1, border: { type: "solid", pt: 0.75, color: HEX.accent6 }, objectName: name() });
+
 // section divider: number, title, one line, and the journey as a timeline with this stop lit
 const STOPS = [["The beginning", "2019"], ["The rabbit hole", "2019–2025"], ["dbt, Iceberg and AI", "2025–2026"], ["Back to the semantic model", "August 2026"], ["Where we're going", "next"]];
 const divider = (k, line, notes, section) => {
@@ -265,93 +275,79 @@ const divider = (k, line, notes, section) => {
 {
   const s = slide("CONTENT");
   s.addText("Why not just write the SQL?", { placeholder: "title" });
-  s.addText("A developer will say: one chart, one query. What's the problem?", { x: M, y: 1.35, w: W - 2 * M, h: 0.5, fontSize: 18, color: C.text2, margin: 0, isTextBox: true, objectName: name() });
-  at(1); code(s,
-    "-- generation, demand and price by region, one day\n" +
-    "SELECT d.Region,\n" +
-    "       SUM(f.mw) / 12     AS generation_mwh,\n" +
-    "       SUM(r.demand) / 12 AS demand_mwh,\n" +
-    "       AVG(r.price)       AS average_price\n" +
-    "FROM fct_summary f\n" +
-    "JOIN dim_duid d   ON d.DUID = f.DUID\n" +
-    "JOIN fct_region r ON r.REGIONID = d.Region\n" +
-    "                 AND r.date = f.date\n" +
-    "                 AND r.time = f.time\n" +
-    "WHERE f.date = DATE '2026-10-12'\n" +
-    "GROUP BY 1;", M, 2.0, 7.6, 3.75, 16);
-  const line = (t, y, color = C.text1) => s.addText(t, { x: 8.6, y, w: W - M - 8.6, h: 0.6, fontSize: 32, bold: true, color, margin: 0, valign: "top", isTextBox: true, objectName: name() });
-  at(2); line("Looks right.", 2.0);
-  at(3); line("Runs fast.", 2.65);
-  at(4); line("Passes review.", 3.3);
-  at(5); s.addText("Two fact tables, one join. Let's look at the numbers.", { x: 8.6, y: 4.3, w: W - M - 8.6, h: 1.0, fontSize: 18, color: C.text2, margin: 0, valign: "top", isTextBox: true, objectName: name() });
-  s.addNotes("Here is the objection every developer in this room has. Why do I need a semantic model? I'll write SQL for each chart. One chart, one query, what's the problem?\n\nSo let's write it. Generation, demand and price by region, for one day. Units from one table, demand and price from the regional table, joined on region and interval. It looks right. It runs fast. Any reviewer would approve it.");
+  s.addText("A developer will say: one chart, one query. How hard can it be?", { x: M, y: 1.35, w: W - 2 * M, h: 0.5, fontSize: 18, color: C.text2, margin: 0, isTextBox: true, objectName: name() });
+  const wd = [1.3, 1.6];
+  label(s, "sales", M, 2.0, C.accent2);
+  tableRow(s, M, 2.4, wd, ["store", "amount"], { head: true });
+  [["A", 10], ["A", 20], ["A", 30], ["B", 40], ["C", 50]].forEach(([st, v], i) => tableRow(s, M, 2.4 + (i + 1) * ROW_H, wd, [st, { text: v, color: HEX.accent2 }]));
+  label(s, "returns", 4.0, 2.0, C.accent1);
+  tableRow(s, 4.0, 2.4, wd, ["store", "amount"], { head: true });
+  [["A", 5], ["A", 5], ["B", 2]].forEach(([st, v], i) => tableRow(s, 4.0, 2.4 + (i + 1) * ROW_H, wd, [st, { text: v, color: HEX.accent1 }]));
+  at(1); label(s, "the chart: sales and returns by store", 7.6, 2.0, C.text2);
+  code(s, "SELECT store,\n       SUM(s.amount) AS sales,\n       SUM(r.amount) AS returns\nFROM sales s\nJOIN returns r USING (store)\nGROUP BY store;", 7.6, 2.4, W - M - 7.6, 2.5, 16);
+  at(2); s.addText("Five sales, three returns, one join.", { x: 7.6, y: 5.15, w: W - M - 7.6, h: 0.6, fontSize: 22, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: name() });
+  s.addNotes("Here is the objection every developer in this room has. Why do I need a semantic model? I'll write the SQL for each chart. One chart, one query, how hard can it be?\n\nSo let's take the smallest example I can think of. Five sales, three returns, three stores. The chart is sales and returns by store. One join, on the store. Everybody has written this query.");
 }
 
-// ---------- 16b. fan-out ----------
+// ---------- 16b. the join pairs every sale with every return ----------
 {
   const s = slide("CONTENT");
-  s.addText("Join two facts and the rows fan out", { placeholder: "title" });
-  s.addText("New South Wales, 12 October 2026: what that query returns, against what the grid reported.", { x: M, y: 1.35, w: W - 2 * M, h: 0.5, fontSize: 18, color: C.text2, margin: 0, isTextBox: true, objectName: name() });
-  const cards = [
-    ["Generation, MWh", "188,334", "188,334", "Right", C.accent2],
-    ["Demand, MWh", "11,973,362", "175,528", "68 times too much", C.accent3],
-    ["Average price, $/MWh", "$763", "$648", "18% too high, and believable", C.accent3],
+  s.addText("The join pairs every sale with every return", { placeholder: "title" });
+  const wd = [1.3, 1.6, 1.6], x = M, y = 1.6;
+  tableRow(s, x, y, wd, ["store", "sale", "return"], { head: true });
+  const row = (i, cells) => tableRow(s, x, y + (i + 1) * ROW_H, wd, cells);
+  const sale = v => ({ text: v, color: HEX.accent2 }), ret = v => ({ text: v, color: HEX.accent1 });
+  const say = (t, ty, color = C.text1) => s.addText(t, { x: 5.6, y: ty, w: W - M - 5.6, h: 1.1, fontSize: 22, color, margin: 0, valign: "top", isTextBox: true, objectName: name() });
+  at(1);
+  [10, 10, 20, 20, 30, 30].forEach((v, i) => row(i, ["A", sale(v), ret(5)]));
+  say("Store A: each sale comes back twice, once for each return. Each return comes back three times, once for each sale.", 1.95);
+  at(2); row(6, ["B", sale(40), ret(2)]);
+  say("Store B has one return, so B comes back once. Right, by luck.", 3.35);
+  at(3); row(7, [{ text: "C", color: HEX.accent4 }, { text: 50, color: HEX.accent4 }, { text: "no row", color: HEX.accent4 }], { fill: HEX.lt1 });
+  say("Store C has no return, so the join drops it: it never reaches the SUM.", 4.45, C.accent3);
+  at(4); tableRow(s, x, y + 9 * ROW_H + 0.12, wd, [{ text: "SUM", bold: true }, { text: 120 + 40, color: HEX.accent3, bold: true }, { text: 30 + 2, color: HEX.accent3, bold: true }]);
+  say("Five sales became seven rows.", 5.45);
+  s.addNotes("This is what the join does. It pairs every sale with every return of the same store.\n\nStore A has three sales and two returns, so you get six rows. Every sale twice, every return three times.\n\nStore B has one sale and one return: one row. B is right, by luck.\n\nStore C has a sale and no return, so the join drops it. Gone.\n\nFive sales became seven rows, and then we sum them.");
+}
+
+// ---------- 16c. what the chart shows ----------
+{
+  const s = slide("CONTENT");
+  s.addText("What the chart shows", { placeholder: "title" });
+  const wd = [1.8, 2.3, 2.3, 2.3, 2.3], x = (W - 11) / 2, y = 1.7, o = { fontSize: 22, rowH: 0.6 };
+  const bad = v => ({ text: v, color: HEX.accent3, bold: true }), good = v => ({ text: v, color: HEX.accent2, bold: true }), truth = v => ({ text: v, color: HEX.dk2 });
+  tableRow(s, x, y, wd, ["store", "sales", "should be", "returns", "should be"], { head: true, ...o });
+  const rows = [
+    ["A", bad(120), truth(60), bad(30), truth(10)],
+    ["B", good(40), truth(40), good(2), truth(2)],
+    ["C", bad("missing"), truth(50), bad("missing"), truth(0)],
+    [{ text: "Total", bold: true }, bad(160), truth(150), bad(32), truth(12)],
   ];
-  const gap = 0.3, bw = (W - 2 * M - gap * 2) / 3, y = 2.05, bh = 2.35;
-  cards.forEach(([label, query, grid, verdict, color], i) => {
-    const x = M + i * (bw + gap);
-    at(i + 1);
-    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w: bw, h: bh, fill: { color: C.background2 }, line: { color: C.accent6, width: 0.75 }, rectRadius: 0.1, objectName: name() });
-    s.addText([
-      { text: label, options: { bold: true, fontSize: 16, color: C.text2, breakLine: true } },
-      { text: "the query  ", options: { fontSize: 13, color: C.text2 } }, { text: query, options: { fontSize: 32, bold: true, color: C.text1, breakLine: true } },
-      { text: "the grid  ", options: { fontSize: 13, color: C.text2 } }, { text: grid, options: { fontSize: 22, color: C.text1, breakLine: true } },
-      { text: verdict, options: { fontSize: 16, bold: true, color } },
-    ], { x: x + 0.25, y: y + 0.15, w: bw - 0.5, h: bh - 0.3, valign: "middle", margin: 0, paraSpaceAfter: 6, isTextBox: true, objectName: name() });
-  });
-  at(4); code(s,
-    "14:20   $23,107/MWh   86 generators running: the join counts it 86 times\n" +
-    "night      $169/MWh   54 generators running: the join counts it 54 times",
-    M, 4.65, W - 2 * M, 1.1, 16);
-  at(5); caption(s, "Each region row comes back once for every generator running. Aggregate each table first, then join.", { fontSize: 18, bold: true, color: C.accent1 });
-  s.addNotes("Generation is right: each unit row meets exactly one region row.\n\nDemand is counted once for every generator running in that interval, so it's 68 times too much. That one you would catch.\n\nThe price you would not. That afternoon the price spiked to 23,000 dollars, when 86 generators were running. At night there are about 54. The join counts the spike 86 times and a night interval 54 times, so the average is weighted by how many generators happen to be running. 763 dollars instead of 648. Believable, and wrong.\n\nThis is fan-out, and the fix is old: aggregate each table on its own, then join the results. Every semantic model does that for you. Writing it by hand, chart by chart, is where it goes wrong.");
+  rows.forEach((r, i) => { at(i + 1); tableRow(s, x, y + 0.6 * (i + 1) + (i === 3 ? 0.12 : 0), wd, r, o); });
+  at(5); s.addText("B is right, so the spot check passes.", { x, y: 5.0, w: 11, h: 0.6, fontSize: 26, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: name() });
+  at(6); s.addText("The total: 160 instead of 150. 7% off, and nobody blinks.", { x, y: 5.65, w: 11, h: 0.6, fontSize: 26, bold: true, color: C.accent3, margin: 0, isTextBox: true, objectName: name() });
+  s.addNotes("So here is the chart. Store A: 120 sales instead of 60, 30 returns instead of 10. Store B: right. Store C: missing.\n\nNow, which store do you check? If you check B, it's right, and the test passes. And the total is 160 instead of 150. Seven per cent off. Nobody blinks at seven per cent.\n\nThis is called fan-out. It is not a beginner's mistake; it is what a join does. And it doesn't throw an error. It just gives you a number.");
 }
 
-// ---------- 16c. two measures, the SQL that runs ----------
+// ---------- 16c2. aggregate first, then join ----------
 {
   const s = slide("CONTENT");
-  s.addText("Two measures by fuel: four tables, three grains", { placeholder: "title" });
-  s.addText("What the chart asks", { x: M, y: 1.35, w: 4.4, h: 0.35, fontSize: 16, bold: true, color: C.accent2, margin: 0, isTextBox: true, objectName: name() });
-  code(s, "SUMMARIZECOLUMNS(\n  dim_duid[FuelSourceDescriptor],\n  \"avg\",   [Average generation MW],\n  \"share\", [Generation share])\n-- two weeks, Wind", M, 1.75, 4.4, 1.85, 12);
-  s.addText("What runs (abridged, the compiler's own output)", { x: 5.25, y: 1.35, w: W - M - 5.25, h: 0.35, fontSize: 16, bold: true, color: C.accent1, margin: 0, isTextBox: true, objectName: name() });
-  code(s,
-    "WITH\n" +
-    "f4  AS (SELECT fuel, SUM(output_mwh)         -- unit, day\n" +
-    "        FROM v_fct_summary_daily ... GROUP BY fuel),\n" +
-    "f10 AS (SELECT fuel, SUM(greatest(mw, 0))    -- unit, 5 min\n" +
-    "        FROM v_fct_summary ...\n" +
-    "        WHERE date > (newest whole day) GROUP BY fuel),\n" +
-    "f17 AS (SELECT fuel, COUNT(DISTINCT date)    -- region, day\n" +
-    "        FROM v_fct_region_daily\n" +
-    "        JOIN (SELECT DISTINCT fuel, Region FROM v_dim_duid) ...),\n" +
-    "f27 AS (SELECT fuel, COUNT(DISTINCT row(date, time))\n" +
-    "        FROM v_fct_region                    -- region, 5 min\n" +
-    "        JOIN (SELECT DISTINCT fuel, Region FROM v_dim_duid) ...),\n" +
-    "f37 AS (SELECT SUM(a0) FROM f4),\n" +
-    "f43 AS (SELECT SUM(a0) FROM f10)\n" +
-    "SELECT fuel,\n" +
-    "  list_sum([f4, f10/12]) / list_sum([24*f17, f27/12])   AS avg,\n" +
-    "  100 * list_sum([f4, f10/12]) / list_sum([f37, f43/12]) AS share\n" +
-    "FROM (f4 UNION f10) k\n" +
-    "LEFT JOIN f4 ... LEFT JOIN f10 ... LEFT JOIN f17 ... LEFT JOIN f27 ...",
-    5.25, 1.75, W - M - 5.25, 4.2, 11);
-  [["4 tables at 3 grains: unit-day, unit-5 min, region-day, region-5 min", C.text1],
-   ["Each table aggregated first, then joined on the fuel: no fan-out", C.text1],
-   ["Wind reaches the region tables through the units: a filter, not a join", C.text1],
-   ["The share's total comes from the same CTEs: no second scan", C.text1]].forEach(([t, color], i) => {
-    at(i + 1); s.addText(t, { x: M, y: 3.85 + i * 0.68, w: 4.4, h: 0.62, fontSize: 15, color, margin: 0, valign: "top", isTextBox: true, objectName: name() });
-  });
-  s.addNotes("This is the averages panel on the dashboard: average generation and share, by fuel, here filtered to wind. Two measures, one column.\n\nAverage MW is energy over hours. The energy comes from two tables: the daily table where days have landed, the five-minute table after the newest whole day. The hours come from the regional tables, at two grains too. So four tables, three grains, in one query.\n\nEach table is aggregated on its own, then joined on the fuel. That's the fix from the previous slide, written by the compiler, not by me. The wind filter reaches the regional tables through the units, as a filter, not a join. And the share's total is read off the same aggregates, no second scan.\n\nNobody writes this by hand for every chart. And if you did, you'd write it a little differently every time.");
+  s.addText("Aggregate first, then join", { placeholder: "title" });
+  const wd = [1.3, 1.5], rw = [1.3, 1.5, 1.5];
+  at(1);
+  tableRow(s, M, 1.6, wd, ["store", "sales"], { head: true });
+  [["A", 60], ["B", 40], ["C", 50]].forEach(([st, v], i) => tableRow(s, M, 1.6 + (i + 1) * ROW_H, wd, [st, { text: v, color: HEX.accent2 }]));
+  tableRow(s, M, 3.65, wd, ["store", "returns"], { head: true });
+  [["A", 10], ["B", 2]].forEach(([st, v], i) => tableRow(s, M, 3.65 + (i + 1) * ROW_H, wd, [st, { text: v, color: HEX.accent1 }]));
+  at(2);
+  s.addShape(pres.shapes.LINE, { x: 3.6, y: 2.4, w: 0.8, h: 0.5, line: { color: C.accent4, width: 1.5, endArrowType: "triangle" }, objectName: name() });
+  s.addShape(pres.shapes.LINE, { x: 3.6, y: 3.4, w: 0.8, h: 0.75, flipV: true, line: { color: C.accent4, width: 1.5, endArrowType: "triangle" }, objectName: name() });
+  tableRow(s, 4.6, 2.5, rw, ["store", "sales", "returns"], { head: true });
+  [["A", 60, 10], ["B", 40, 2], ["C", 50, "–"]].forEach(([st, a, b], i) => tableRow(s, 4.6, 2.5 + (i + 1) * ROW_H, rw, [st, { text: a, color: HEX.accent2 }, { text: b, color: HEX.accent1 }]));
+  at(3); s.addText("One row per store on each side, so nothing multiplies, and nothing is dropped.", { x: 9.3, y: 1.7, w: W - M - 9.3, h: 1.6, fontSize: 20, color: C.text1, margin: 0, valign: "top", isTextBox: true, objectName: name() });
+  at(4); s.addText("A semantic model writes this for every chart, for any mix of measures. You write SUM(sales) once.", { x: 9.3, y: 3.4, w: W - M - 9.3, h: 1.8, fontSize: 20, bold: true, color: C.accent1, margin: 0, valign: "top", isTextBox: true, objectName: name() });
+  at(5); code(s, "WITH s AS (SELECT store, SUM(amount) AS sales   FROM sales   GROUP BY store),\n     r AS (SELECT store, SUM(amount) AS returns FROM returns GROUP BY store)\nSELECT store, sales, returns FROM s FULL JOIN r USING (store);", M, 5.55, W - 2 * M, 1.15, 14);
+  s.addNotes("The fix is old. Sum each table on its own first, one row per store. Then join. One row meets one row, so nothing multiplies. And with a full join, nothing is dropped: store C is back.\n\nYou can write this by hand, of course. For this chart. And the next one. And every combination of measures somebody will ever put on a chart. Or you define SUM of sales once, in a semantic model, and it writes this for every chart. That is what a semantic model is for.");
 }
 
 // ---------- 16d. 141 characters, 98 SELECTs ----------
@@ -432,22 +428,24 @@ const divider = (k, line, notes, section) => {
 {
   const s = slide("CONTENT");
   s.addText("Give the AI the model, and let it write the SQL?", { placeholder: "title" });
+  s.addText("The same two tables, the same question: total sales, with returns. Three queries that all run.", { x: M, y: 1.35, w: W - 2 * M, h: 0.5, fontSize: 18, color: C.text2, margin: 0, isTextBox: true, objectName: name() });
   const ways = [
-    ["Free SQL", "The AI invents the definition of the number, every time it's asked.", "SUM(mw): wrong", C.accent3],
-    ["The model as context", "The AI reads the model, then writes the SQL. It knows the definitions, and still has to get every join, grain and fan-out right, on every question.", "A hint, not a guarantee", C.accent1],
-    ["The model as a contract", "The AI names fields, filters and measures. A compiler writes the SQL, the same way every time.", "Deterministic", C.accent2],
+    ["JOIN", "SELECT SUM(s.amount),\n       SUM(r.amount)\nFROM sales s\nJOIN returns r\n  USING (store)", "160", "A doubled, C dropped", C.accent3],
+    ["LEFT JOIN", "SELECT SUM(s.amount),\n       SUM(r.amount)\nFROM sales s\nLEFT JOIN returns r\n  USING (store)", "210", "C is back, A still doubled", C.accent3],
+    ["Aggregate first", "WITH s AS (... sales\n       GROUP BY store),\n     r AS (... returns\n       GROUP BY store)\nSELECT ... FROM s\n  FULL JOIN r USING (store)", "150", "Right", C.accent2],
   ];
-  const gap = 0.3, bw = (W - 2 * M - gap * 2) / 3, y = 1.5, bh = 3.7;
-  ways.forEach(([t, body, foot, color], i) => {
+  const gap = 0.3, bw = (W - 2 * M - gap * 2) / 3, y = 2.0, bh = 3.75;
+  ways.forEach(([t, sql, total, verdict, color], i) => {
     const x = M + i * (bw + gap);
     at(i + 1);
-    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w: bw, h: bh, fill: { color: C.background2 }, line: { color: i === 2 ? C.accent2 : C.accent6, width: i === 2 ? 2 : 0.75 }, rectRadius: 0.1, objectName: name() });
-    s.addText([{ text: t, options: { bold: true, fontSize: 24, color: C.text1, breakLine: true } }, { text: body, options: { fontSize: 16, color: C.text2 } }],
-      { x: x + 0.25, y: y + 0.25, w: bw - 0.5, h: bh - 1.15, valign: "top", margin: 0, paraSpaceAfter: 10, isTextBox: true, objectName: name() });
-    s.addText(foot, { x: x + 0.25, y: y + bh - 0.8, w: bw - 0.5, h: 0.5, fontSize: 18, bold: true, color, margin: 0, isTextBox: true, objectName: name() });
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w: bw, h: bh, fill: { color: C.background2 }, line: { color: C.accent6, width: 0.75 }, rectRadius: 0.1, objectName: name() });
+    s.addText(t, { x: x + 0.25, y: y + 0.2, w: bw - 0.5, h: 0.45, fontSize: 20, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: name() });
+    s.addText(sql, { x: x + 0.25, y: y + 0.75, w: bw - 0.5, h: 1.6, fontFace: "Consolas", fontSize: 13, color: C.text2, valign: "top", margin: 0, isTextBox: true, objectName: name() });
+    s.addText([{ text: total, options: { fontSize: 44, bold: true, color } }, { text: "  total sales", options: { fontSize: 14, color: C.text2 } }], { x: x + 0.25, y: y + 2.4, w: bw - 0.5, h: 0.75, margin: 0, valign: "bottom", isTextBox: true, objectName: name() });
+    s.addText(verdict, { x: x + 0.25, y: y + 3.2, w: bw - 0.5, h: 0.4, fontSize: 15, bold: true, color, margin: 0, isTextBox: true, objectName: name() });
   });
-  at(4); s.addText("Reading the model isn't the same as obeying it.", { x: M, y: 5.55, w: W - 2 * M, h: 0.7, fontSize: 28, bold: true, color: C.accent1, margin: 0, isTextBox: true, objectName: name() });
-  s.addNotes("So the obvious fix: give the AI the semantic model, and let it write the SQL. A lot of people are doing exactly this, and I'm not convinced it's the right approach.\n\nWith the model as context, the AI knows what generation means. But it still writes the SQL, and on every question it has to get all of it right again: batteries charging are not generation; the daily table, then the five-minute rows after the newest whole day; the average price weighted by intervals; the fuel filter reaching the regional tables through the units; aggregate each table before the join. Most of the time it will. Most of the time is the problem. Ask the same question twice and you get two different queries.\n\nYou can build a system around a deterministic limitation. You can't build one around a random failure.\n\nSo the AI doesn't write the SQL. It names the measure, and a compiler writes the SQL, the same way every time.");
+  at(4); s.addText("Reading the model isn't the same as obeying it.", { x: M, y: 6.0, w: W - 2 * M, h: 0.6, fontSize: 28, bold: true, color: C.accent1, margin: 0, isTextBox: true, objectName: name() });
+  s.addNotes("So the obvious fix: give the AI the semantic model, and let it write the SQL. A lot of people are doing exactly this, and I'm not convinced it's the right approach.\n\nTake the toy example again. The model is in the prompt. It says what sales are and what returns are. The AI still writes the SQL, and here are three queries that all run. A join: 160. A left join, because someone noticed store C was missing: 210. Aggregate first: 150. Only one of them is right, and the two wrong ones look perfectly reasonable.\n\nWith the model as context, the AI knows the definitions, but it still has to get every join right, on every question. Most of the time it will. Most of the time is the problem. The model in the prompt is a hint, not a guarantee.\n\nSo the AI doesn't write the SQL. It names the measure, and a compiler writes the SQL, the same way every time.");
 }
 
 // ---------- 16. the harness ----------
