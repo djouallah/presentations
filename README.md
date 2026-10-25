@@ -14,10 +14,10 @@ An honest scorecard of DuckDB, Polars, Daft, DataFusion, chDB and LakeSail on a 
 
 ## [analytics-as-code/](analytics-as-code/): Anatomy of a Click
 
-A hobby project since 2019, from a solar farm's production numbers to Power BI, Python, Iceberg, DuckDB and Fabric, and what happens when you click a visual.
+A real analytics platform (ingestion, transformation, storage, testing and an interactive dashboard) shipped from a single Git repo: dbt-duckdb in CI, an Iceberg REST catalog as the only persistent layer, and a DuckDB-WASM dashboard in the browser. No orchestrator, no warehouse compute, no backend API. Live demo: https://nemtracker.github.io/, code: https://github.com/djouallah/analytics-as-code.
 
 - `talk.pptx`: the deck
-- `talk.md`, `story.md`: outline and talk narrative
+- `abstract.txt`, `talk.md`, `story.md`: abstract, outline and talk narrative
 - `first-look-at-apache-ossie.md`, `reference.md`: companion notes
 - `anatomy-of-a-click-1080p.mp4`: demo video (the 360 MB master is kept locally only; it is over GitHub's 100 MB limit)
 - `img/`: diagrams and history screenshots
