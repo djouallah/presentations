@@ -680,7 +680,7 @@ pres.addSection({ title: "Opening" });
 {
   // Just the section titles.
   const s = content("Opening", "Agenda");
-  const items = ["What changed since 2025", "Iceberg", "The engines", "What does “fast” mean?", "Benchmarks", "Real-life use case", "What I learned"];
+  const items = ["What changed since 2025", "Iceberg", "The engines", "What does “fast” mean?", "Real-life use case", "What I learned"];
   T(s, items.flatMap((t, k) => [
     { text: String(k + 1).padStart(2, "0") + "   ", options: { bold: true, color: C.accent1 } },
     { text: t, options: { color: C.text1, breakLine: k < items.length - 1 } },
@@ -821,22 +821,14 @@ stepped("04 Fast", "The importance of sorting data",
     { name: "DuckDB nightly" });
 }
 
-// ---------- 5. Benchmarks ----------
-section("05 Benchmarks", "05", "Benchmarks", "Nobody switches engines for 2×.");
-barsSlide("05 Benchmarks", "TPC-H-like, scale factor 30: all nine engines finish", "tpch", 30,
-  "Derived from TPC-H, not audited. It tests the cache more than anything else.",
-  "Nobody switches engines for 2x. What the benchmarks prove: these engines read Iceberg, run full SQL suites, spill to disk, and plan reasonably well, on one small box. TPC-H-like at scale factor 30, where all nine engines finish. These are TPC-H-like: derived from TPC-H, not audited, and they test the cache more than anything else.");
-barsSlide("05 Benchmarks", "Light ETL: 1,000 CSV files into one Iceberg table", "etl", 1000, null,
-  "The 52 GB ETL: read 1,000 CSVs and write one Iceberg table.");
-
-// ---------- 6. Real-life use case ----------
-section("06 Real-life use case", "06", "Real-life use case", "The only one that matters.");
+// ---------- 5. Real-life use case ----------
+section("05 Real-life use case", "05", "Real-life use case", "The only one that matters.");
 // The landed size on the source node, as the dashboard has it (docs/index.html LANDED, measured once).
 const LANDED = (() => {
   const m = fs.readFileSync("c:/git/bench/docs/index.html", "utf8").match(/const LANDED = \{ gb: ([\d.]+), date: "([^"]+)"/);
   return { gb: +m[1], date: m[2] };
 })();
-shotSlide("06 Real-life use case", "The real workload", "workload", null,
+shotSlide("05 Real-life use case", "The real workload", "workload", null,
   `From the dashboard's Real workload tab: one dbt project, incremental with MERGE, never reset. The source is ${Math.round(LANDED.gb)} GB of AEMO CSV files (measured ${LANDED.date}). Same dbt project, five engines, same catalog; Iceberg made that a config change. This is the real-life benchmark: dbt orchestrates the SQL, every model is written to Iceberg. One run tests reading files, GROUP BY, complex MERGE on composite keys, writing Iceberg, incremental builds on tables that keep growing, and how well each dbt adapter is implemented. Spark and Trino, which is obvious; DuckDB, Polars and LakeSail did it too. I hope next year more engines join. Real life is boring: DuckDB went from a dead runner at 100 files to 360 by staging through a view. Find your one thing by running your own workload.`);
 // The Real workload tab's last run (docs/data/workload.json), per engine.
 const LEGS = JSON.parse(fs.readFileSync("c:/git/bench/docs/data/workload.json", "utf8")).legs;
@@ -845,7 +837,7 @@ const LEGS = JSON.parse(fs.readFileSync("c:/git/bench/docs/data/workload.json", 
   // "dbt stages the batch before the MERGE"; the spill is the last run's peak, from workload.json.
   // No engine names on this slide.
   const spillGB = Math.round(Math.max(...Object.values(LEGS).map((l) => l.peak_spill_mb)) / 1024);
-  const s = content("06 Real-life use case", "Why real life is hard",
+  const s = content("05 Real-life use case", "Why real life is hard",
     `A TPC run reads clean Parquet and answers queries. The real workload has to do all of this, every run. A minor feature can be a blocker: an AEMO daily file holds several record types, so a 53-field row sits next to rows of about 120 fields. One engine's CSV reader refused the file outright until it got an option to accept short rows; every engine needed its own options. Append only works in a demo: runs overlap, and two appends of the same files both commit, so the rows land twice. A MERGE on the key keeps one copy, which is why every model is an incremental MERGE on a composite key into tables that only grow. Spill to disk is the real bottleneck: the merge doesn't fit in 16 GB of RAM, so it goes to disk, up to ${spillGB} GB in the last run. An engine that can't spill doesn't slow down, it takes the runner with it. The dbt adapter is as important as the engine: it decides how the batch is staged, a temp table or a view. Same SQL, same engine, very different memory.`);
   const cw = (CW - 0.4) / 2, ch = 2.0, cards = [
     ["A minor feature can be a blocker", "A ragged CSV: 53 fields on one row, about 120 on the next. If the reader can’t take it, nothing runs."],
@@ -870,15 +862,15 @@ const LEGS = JSON.parse(fs.readFileSync("c:/git/bench/docs/data/workload.json", 
   const days = fixed.map((i) => Math.round((Date.parse(i.closed) - Date.parse(i.opened)) / 864e5)).sort((x, y) => x - y);
   const m = days.length >> 1, median = days.length % 2 ? days[m] : (days[m - 1] + days[m]) / 2;
   const polars = reports.filter((i) => i.engine === "Polars"), polarsFixed = polars.filter((i) => i.state === "fixed");
-  shotSlide("06 Real-life use case", "Every report, one dot each", "reports", null,
+  shotSlide("05 Real-life use case", "Every report, one dot each", "reports", null,
     `From the dashboard's Bug reports tab: one dot per report, oldest first. ${reports.length} reports filed, ${fixed.length} fixed, ${median} days median from report to fix. The best help for an engine is a bug report it can reproduce. AI makes the repro cheap: it drafts, I check, one bug per issue. Polars fixed ${polarsFixed.length} of ${polars.length}, and went from crashing at SF30 to finishing everything at SF100.`);
 }
-// ---------- 7. What I learned ----------
-section("07 What I learned", "07", "What I learned");
+// ---------- 6. What I learned ----------
+section("06 What I learned", "06", "What I learned");
 {
   // LEARNING.md: "The bottleneck is getting bytes off OneLake, not compute" (DuckDB, one line changed, c2871af) and
   // the dbt workload's "A prune predicate only prunes on a column whose manifest bounds are exact".
-  const s = content("07 What I learned", "Read less",
+  const s = content("06 What I learned", "Read less",
     "The cache: on a small box the bottleneck is getting bytes off storage, not CPU, and later queries re-read the same files. DuckDB with its file cache off, same wheel, same run, one line changed: TPC-DS-like SF10 cold goes from 92.1 s to 370.3 s, TPC-H-like SF10 from 44.3 s to 80.2 s, 1.8 to 4x from the cache alone. It's the only cache DuckDB turns on by itself; Velox's and Trino's are off by default, and turning Velox's on took Gluten's TPC-H-like SF10 cold run from 249.6 s to 123-160 s. Cache reads, not writes: a write isn't done until its files are in storage and the catalog commit points to them. The filter: each merge filtered on the source file name, and it skipped nothing. Iceberg writers cut string bounds to 16 characters by default, truncate(16), and every AEMO file name starts PUBLIC_DAILY_20, so every data file may match every batch. Sail's spill grew with the table, 12.7, 14.2, 20.9, 57.3, then 64.1 GB, and the run failed (39712751864). Filtering on the batch's DATEs too, which are never cut, took Sail's fct_scada from a failure at 65.5 GB of spill (39723305966) to 168 s (39735439145). Same result, no reset. A prefix shared by every value, names, URLs, paths, makes a useless filter column.");
   T(s, "On a small box, bytes off storage cost more than CPU.", { x: MX, y: 1.5, w: CW, h: 0.5, fontSize: 22, color: C.text2 });
   at(1);
@@ -904,7 +896,7 @@ section("07 What I learned", "07", "What I learned");
   const h30 = vs(SUITES.tpch, 30), ds = SUITES.tpcds.sfs.map((sf) => vs(SUITES.tpcds, sf)).filter(Boolean);
   const gluten = summarize(SUITES.tpcds, 100).find((i) => i.engine === "pyspark_gluten_iceberg" && !i.failed);
   const lo = Math.min(...ds.map((d) => d.r)), hi = Math.max(...ds.map((d) => d.r));
-  const s = content("07 What I learned", "Distributed engines run fine on one small box",
+  const s = content("06 What I learned", "Distributed engines run fine on one small box",
     `StarRocks is not a library you pip install, it's a proper distributed system: a front end in Java, which parses, plans and holds the catalog, and a back end in C++, which executes. Normally they run on separate machines. Here both share one 4-core, 16 GB runner in the single-node allin1 image, capped at 15 GB, and Python talks to it over the MySQL protocol. It finishes TPC-H-like SF300 in ${fmt(sr.mean)}. Spark with Velox underneath, through Gluten, same SQL: TPC-H-like SF30 in ${fmt(h30.gluten)} against ${fmt(h30.spark)} on Spark's own engine, ${ratio(h30.r)}, and ${ratio(lo)} to ${ratio(hi)} across TPC-DS-like. It finishes TPC-DS-like SF100 in ${fmt(gluten.mean)}. It runs on a fixed budget, 9 GB off-heap plus 3 GB heap, and not one of its failures at any scale came from memory: they were expired credentials, and at TPC-H-like SF300 the disk. It's the Spark leg of the real workload, and the result the other engines are checked against. AI did its setup: Apache's nightly bundle with pyspark pinned to 4.1.1, and five fixes to read the catalog's storage, each found by a smoke run (apache/gluten#10488 among them). Both have a memory budget. Without one, Polars 2.0.0-rc.2 and Sail took the whole runner down. Spark is adapting, all in open source: Gluten, Comet.`);
   T(s, "Each on one 4-core, 16 GB runner.", { x: MX, y: 1.5, w: CW, h: 0.5, fontSize: 22, color: C.text2 });
   at(1);
@@ -923,7 +915,7 @@ section("07 What I learned", "07", "What I learned");
   // DECIMAL(18,5), run 39952876729); the issues' states come from the Bug reports tab.
   const issues = JSON.parse(fs.readFileSync("c:/git/bench/docs/data/reports.json", "utf8")).items
     .filter((i) => ["duckdb/duckdb#27503", "pola-rs/polars#30074"].includes(i.id)).map((i) => `${i.id} (${i.state})`).join(" and ");
-  const s = content("07 What I learned", "Engine execution nuances",
+  const s = content("06 What I learned", "Engine execution nuances",
     `The real workload's fct_summary cast a DOUBLE to DECIMAL(18,4). AEMO publishes five decimals, so about 2.7% of the rows are a tie at the fourth decimal, like 96.07385. The SQL was the same on every engine; the behaviour was not. Spark rounds the published number half up: 96.0739. DuckDB multiplies by 10,000 first, lands on 960738.4999999999 and rounds down: 96.0738. Polars rounds ties to even, so about half go down. Out of 3.08M rows, DuckDB differed from Spark on 6,716 and Polars on 85,090, every one by exactly 0.0001. Moving SQL between engines is not only vocabulary: the same statement can behave differently. The fix was simple: DECIMAL(18,5). AEMO's five decimals fit, nothing rounds, and every engine stores the same value. Filed: ${issues}.`);
   T(s, "One value, 96.07385, cast from DOUBLE to DECIMAL(18,4)", { x: MX, y: 1.5, w: CW, h: 0.5, fontSize: 22, color: C.text2 });
   at(1);
