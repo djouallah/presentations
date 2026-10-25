@@ -254,42 +254,43 @@ const divider = (k, line, notes, section) => {
 {
   const s = slide("CONTENT");
   s.addText("Why not just write the SQL?", { placeholder: "title" });
-  const wd = [1.3, 1.6];
+  const sold = v => ({ text: v, color: HEX.accent2 }), stk = v => ({ text: v, color: HEX.accent1 });
+  const wd = [1.3, 1.3], kw = [1.2, 1.5, 1.2];
   label(s, "sales", M, 2.0, C.accent2);
-  tableRow(s, M, 2.4, wd, ["store", "amount"], { head: true });
-  [["A", 10], ["A", 20], ["A", 30], ["B", 40], ["C", 50]].forEach(([st, v], i) => tableRow(s, M, 2.4 + (i + 1) * ROW_H, wd, [st, { text: v, color: HEX.accent2 }]));
+  tableRow(s, M, 2.4, wd, ["product", "units"], { head: true });
+  [["A", 10], ["A", 20], ["A", 30], ["B", 40], ["C", 50]].forEach(([p, v], i) => tableRow(s, M, 2.4 + (i + 1) * ROW_H, wd, [p, sold(v)]));
   tableRow(s, M, 2.4 + 6 * ROW_H + 0.12, wd, [{ text: "total", bold: true }, { text: 150, color: HEX.accent2, bold: true }]);
-  label(s, "returns", 4.0, 2.0, C.accent1);
-  tableRow(s, 4.0, 2.4, wd, ["store", "amount"], { head: true });
-  [["A", 5], ["A", 5], ["B", 2], ["D", 8]].forEach(([st, v], i) => tableRow(s, 4.0, 2.4 + (i + 1) * ROW_H, wd, [st, { text: v, color: HEX.accent1 }]));
-  tableRow(s, 4.0, 2.4 + 5 * ROW_H + 0.12, wd, [{ text: "total", bold: true }, { text: 20, color: HEX.accent1, bold: true }]);
-  at(1); label(s, "the chart: sales and returns by store", 7.6, 2.0, C.text2);
-  code(s, "SELECT store,\n       SUM(s.amount) AS sales,\n       SUM(r.amount) AS returns\nFROM sales s\nJOIN returns r USING (store)\nGROUP BY store;", 7.6, 2.4, W - M - 7.6, 2.5, 16);
-  at(2); s.addText("Five sales, four returns, one join.", { x: 7.6, y: 5.15, w: W - M - 7.6, h: 0.6, fontSize: 22, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: name() });
-  s.addNotes("Here is the objection every developer in this room has. Why do I need a semantic model? I'll write the SQL for each chart. One chart, one query, how hard can it be?\n\nSo let's take the smallest example I can think of. Five sales, four returns, four stores. 150 of sales, 20 of returns. Store C sold something and had no return; store D had a return and no sale, say something bought online and returned in a shop. The chart is sales and returns by store. One join, on the store. Everybody has written this query.");
+  label(s, "stock", 3.6, 2.0, C.accent1);
+  tableRow(s, 3.6, 2.4, kw, ["product", "warehouse", "units"], { head: true });
+  [["A", "north", 5], ["A", "south", 5], ["B", "north", 2], ["D", "south", 8]].forEach(([p, w, v], i) => tableRow(s, 3.6, 2.4 + (i + 1) * ROW_H, kw, [p, { text: w, color: HEX.dk2 }, stk(v)]));
+  tableRow(s, 3.6, 2.4 + 5 * ROW_H + 0.12, kw, [{ text: "total", bold: true }, "", { text: 20, color: HEX.accent1, bold: true }]);
+  at(1); label(s, "the chart: sold and in stock, by product", 7.9, 2.0, C.text2);
+  code(s, "SELECT product,\n       SUM(s.units) AS sold,\n       SUM(k.units) AS in_stock\nFROM sales s\nJOIN stock k USING (product)\nGROUP BY product;", 7.9, 2.4, W - M - 7.9, 2.5, 16);
+  at(2); s.addText("Five sales, four stock rows.", { x: 7.9, y: 5.15, w: W - M - 7.9, h: 0.6, fontSize: 22, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: name() });
+  s.addNotes("Here is the objection every developer in this room has. Why do I need a semantic model? I'll write the SQL for each chart. One chart, one query, how hard can it be?\n\nSo let's take the smallest example I can think of. Sales, and stock. 150 units sold, 20 in stock. Product A sits in two warehouses. Product C sold out, so it has no stock row. Product D is in stock and has never sold. Nothing unusual about any of that.\n\nThe chart: sold and in stock, by product. One join, on the product. Everybody has written this query.");
 }
 
-// ---------- 16b. the join pairs every sale with every return ----------
+// ---------- 16b. the join pairs every sale with every stock row ----------
 {
   const s = slide("CONTENT");
-  s.addText("The join pairs every sale with every return", { placeholder: "title" });
+  s.addText("The join pairs every sale with every stock row", { placeholder: "title" });
   const wd = [1.3, 1.6, 1.6], x = M, y = 1.5;
-  tableRow(s, x, y, wd, ["store", "sale", "return"], { head: true });
+  tableRow(s, x, y, wd, ["product", "sold", "in stock"], { head: true });
   const row = (i, cells, o) => tableRow(s, x, y + (i + 1) * ROW_H, wd, cells, o);
-  const sale = v => ({ text: v, color: HEX.accent2 }), ret = v => ({ text: v, color: HEX.accent1 }), gone = v => ({ text: v, color: HEX.accent4 });
+  const sold = v => ({ text: v, color: HEX.accent2 }), stk = v => ({ text: v, color: HEX.accent1 }), gone = v => ({ text: v, color: HEX.accent4 });
   const say = (t, ty, color = C.text1) => s.addText(t, { x: 5.6, y: ty, w: W - M - 5.6, h: 1.1, fontSize: 22, color, margin: 0, valign: "top", isTextBox: true, objectName: name() });
   at(1);
-  [10, 10, 20, 20, 30, 30].forEach((v, i) => row(i, ["A", sale(v), ret(5)]));
-  say("Store A: each sale comes back twice, once for each return. Each return comes back three times, once for each sale.", 1.85);
-  at(2); row(6, ["B", sale(40), ret(2)]);
-  say("Store B has one of each, so B comes back once. Right, by luck.", 3.25);
-  at(3); row(7, [gone("C"), gone(50), gone("no return")], { fill: HEX.lt1 });
-  say("Store C has no return, so the join drops its sale.", 4.25, C.accent3);
+  [10, 10, 20, 20, 30, 30].forEach((v, i) => row(i, ["A", sold(v), stk(5)]));
+  say("Product A: each sale comes back twice, once per warehouse. Each stock row comes back three times, once per sale.", 1.85);
+  at(2); row(6, ["B", sold(40), stk(2)]);
+  say("Product B: one sale, one warehouse, so it comes back once. Right, by luck.", 3.25);
+  at(3); row(7, [gone("C"), gone(50), gone("no stock")], { fill: HEX.lt1 });
+  say("C sold out, no stock row: its sales are dropped.", 4.25, C.accent3);
   at(4); row(8, [gone("D"), gone("no sale"), gone(8)], { fill: HEX.lt1 });
-  say("Store D has no sale, so the join drops its return.", 4.95, C.accent3);
+  say("D never sold: its stock is dropped.", 4.95, C.accent3);
   at(5); tableRow(s, x, y + 10 * ROW_H + 0.12, wd, [{ text: "SUM", bold: true }, { text: 120 + 40, color: HEX.accent3, bold: true }, { text: 30 + 2, color: HEX.accent3, bold: true }]);
-  say("Five sales became seven rows, and two stores vanished.", 5.75);
-  s.addNotes("This is what the join does. It pairs every sale with every return of the same store.\n\nStore A has three sales and two returns, so you get six rows. Every sale twice, every return three times.\n\nStore B has one sale and one return: one row. B is right, by luck.\n\nStore C has a sale and no return, so the join drops it. Store D has a return and no sale: dropped too.\n\nFive sales became seven rows, two stores vanished, and then we sum.");
+  say("Five sales became seven rows, and two products vanished.", 5.75);
+  s.addNotes("This is what the join does. It pairs every sale with every stock row of the same product.\n\nProduct A has three sales and stock in two warehouses, so you get six rows. Every sale twice, every stock row three times.\n\nProduct B has one sale and one warehouse: one row. B is right, by luck.\n\nProduct C sold out, so there is no stock row, and the join drops its sales. Product D never sold, so the join drops its stock.\n\nFive sales became seven rows, two products vanished, and then we sum.");
 }
 
 // ---------- 16c. what the chart shows ----------
@@ -298,7 +299,7 @@ const divider = (k, line, notes, section) => {
   s.addText("What the chart shows", { placeholder: "title" });
   const wd = [1.8, 2.3, 2.3, 2.3, 2.3], x = (W - 11) / 2, y = 1.5, o = { fontSize: 22, rowH: 0.58 };
   const bad = v => ({ text: v, color: HEX.accent3, bold: true }), good = v => ({ text: v, color: HEX.accent2, bold: true }), truth = v => ({ text: v, color: HEX.dk2 });
-  tableRow(s, x, y, wd, ["store", "sales", "should be", "returns", "should be"], { head: true, ...o });
+  tableRow(s, x, y, wd, ["product", "sold", "should be", "in stock", "should be"], { head: true, ...o });
   const rows = [
     ["A", bad(120), truth(60), bad(30), truth(10)],
     ["B", good(40), truth(40), good(2), truth(2)],
@@ -308,38 +309,38 @@ const divider = (k, line, notes, section) => {
   ];
   rows.forEach((r, i) => { at(i + 1); tableRow(s, x, y + 0.58 * (i + 1) + (i === 4 ? 0.12 : 0), wd, r, o); });
   at(6); s.addText("B is right, so the spot check passes.", { x, y: 5.25, w: 11, h: 0.55, fontSize: 26, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: name() });
-  at(7); s.addText("Sales: 160 instead of 150. 7% off, and nobody blinks.", { x, y: 5.9, w: 11, h: 0.55, fontSize: 26, bold: true, color: C.accent3, margin: 0, isTextBox: true, objectName: name() });
-  s.addNotes("So here is the chart. Store A: 120 sales instead of 60, 30 returns instead of 10. Store B: right. Stores C and D: missing.\n\nNow, which store do you check? If you check B, it's right, and the test passes. And the sales total is 160 instead of 150. Seven per cent off. Nobody blinks at seven per cent.\n\nThis is called fan-out. It is not a beginner's mistake; it is what a join does. And it doesn't throw an error. It just gives you a number.");
+  at(7); s.addText("Units sold: 160 instead of 150. 7% off, and nobody blinks.", { x, y: 5.9, w: 11, h: 0.55, fontSize: 26, bold: true, color: C.accent3, margin: 0, isTextBox: true, objectName: name() });
+  s.addNotes("So here is the chart. Product A: 120 sold instead of 60, 30 in stock instead of 10. Product B: right. Products C and D: missing.\n\nNow, which product do you check? If you check B, it's right, and the test passes. And units sold say 160 instead of 150. Seven per cent off. Nobody blinks at seven per cent.\n\nThis is called fan-out. It is not a beginner's mistake; it is what a join does. And it doesn't throw an error. It just gives you a number.");
 }
 
 // ---------- 16c2. aggregate first, then which join? ----------
 {
   const s = slide("CONTENT");
   s.addText("Aggregate first. Then which join?", { placeholder: "title" });
-  const wd = [1.2, 1.4], rw = [0.9, 0.85, 1.05], o = { fontSize: 14 };
+  const wd = [1.2, 1.4], rw = [1.0, 0.85, 0.95], o = { fontSize: 14 };
   const sv = v => ({ text: v, color: HEX.accent2 }), rv = v => ({ text: v, color: HEX.accent1 });
   at(1);
-  tableRow(s, M, 1.6, wd, ["store", "sales"], { head: true });
-  [["A", 60], ["B", 40], ["C", 50]].forEach(([st, v], i) => tableRow(s, M, 1.6 + (i + 1) * ROW_H, wd, [st, sv(v)]));
-  tableRow(s, M, 3.6, wd, ["store", "returns"], { head: true });
-  [["A", 10], ["B", 2], ["D", 8]].forEach(([st, v], i) => tableRow(s, M, 3.6 + (i + 1) * ROW_H, wd, [st, rv(v)]));
+  tableRow(s, M, 1.6, wd, ["product", "sold"], { head: true });
+  [["A", 60], ["B", 40], ["C", 50]].forEach(([p, v], i) => tableRow(s, M, 1.6 + (i + 1) * ROW_H, wd, [p, sv(v)]));
+  tableRow(s, M, 3.6, wd, ["product", "stock"], { head: true });
+  [["A", 10], ["B", 2], ["D", 8]].forEach(([p, v], i) => tableRow(s, M, 3.6 + (i + 1) * ROW_H, wd, [p, rv(v)]));
   const joins = [
     ["JOIN", [["A", 60, 10], ["B", 40, 2]], [100, 12], "C and D gone", C.accent3],
-    ["LEFT JOIN", [["A", 60, 10], ["B", 40, 2], ["C", 50, "–"]], [150, 12], "D's return gone", C.accent3],
+    ["LEFT JOIN", [["A", 60, 10], ["B", 40, 2], ["C", 50, "–"]], [150, 12], "D's stock gone", C.accent3],
     ["FULL JOIN", [["A", 60, 10], ["B", 40, 2], ["C", 50, "–"], ["D", "–", 8]], [150, 20], "Right", C.accent2],
   ];
   joins.forEach(([t, rows, [ts, tr], verdict, color], i) => {
     const x = 3.9 + i * 2.95;
     at(i + 2);
     s.addText(t, { x, y: 1.6, w: 2.8, h: 0.35, fontSize: 16, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: name() });
-    tableRow(s, x, 2.0, rw, ["store", "sales", "returns"], { head: true, ...o });
-    rows.forEach(([st, a, b], j) => tableRow(s, x, 2.0 + (j + 1) * ROW_H, rw, [st, sv(a), rv(b)], o));
+    tableRow(s, x, 2.0, rw, ["product", "sold", "stock"], { head: true, ...o });
+    rows.forEach(([p, a, b], j) => tableRow(s, x, 2.0 + (j + 1) * ROW_H, rw, [p, sv(a), rv(b)], o));
     tableRow(s, x, 2.0 + 5 * ROW_H + 0.12, rw, [{ text: "total", bold: true }, { text: ts, bold: true, color: ts === 150 ? HEX.accent2 : HEX.accent3 }, { text: tr, bold: true, color: tr === 20 ? HEX.accent2 : HEX.accent3 }], o);
     s.addText(verdict, { x, y: 4.82, w: 2.8, h: 0.4, fontSize: 16, bold: true, color, margin: 0, isTextBox: true, objectName: name() });
   });
-  at(5); s.addText("Aggregating first stops the fan-out. The join still decides which stores exist.", { x: M, y: 5.45, w: W - 2 * M, h: 0.5, fontSize: 22, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: name() });
-  at(6); s.addText("A semantic model goes through the store dimension: every store once, for every chart, and nobody has to think about it.", { x: M, y: 6.0, w: W - 2 * M, h: 0.8, fontSize: 20, bold: true, color: C.accent1, margin: 0, isTextBox: true, objectName: name() });
-  s.addNotes("Now the developer says: joining on a key that repeats is dumb. Everybody knows you aggregate first. Fine. Aggregate first: one row per store on each side. Nothing multiplies.\n\nNow, which join? An inner join: C and D are gone, 100 of sales. A left join from sales: C is back, but D, a return with no sale, is gone; returns say 12, not 20. Only a full join gets 150 and 20. Add a third table and it's a full join of a full join, with the keys coalesced.\n\nOr you go through the store dimension, and every measure is aggregated to it. That is what a semantic model does, for every chart and any mix of measures, without anybody having to think about it.");
+  at(5); s.addText("Aggregating first stops the fan-out. The join still decides which products exist.", { x: M, y: 5.45, w: W - 2 * M, h: 0.5, fontSize: 22, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: name() });
+  at(6); s.addText("A semantic model goes through the product dimension: every product once, for every chart, and nobody has to think about it.", { x: M, y: 6.0, w: W - 2 * M, h: 0.8, fontSize: 20, bold: true, color: C.accent1, margin: 0, isTextBox: true, objectName: name() });
+  s.addNotes("Now the developer says: joining on a key that repeats is dumb. Everybody knows you aggregate first. Fine. Aggregate first: one row per product on each side. Nothing multiplies.\n\nNow, which join? An inner join: C and D are gone, 100 sold. A left join from sales: C is back, but D, in stock and never sold, is gone; stock says 12, not 20. Only a full join gets 150 and 20. Add a third table, say orders on the way, and it's a full join of a full join, with the keys coalesced.\n\nOr you go through the product dimension, and every measure is aggregated to it. That is what a semantic model does, for every chart and any mix of measures, without anybody having to think about it.");
 }
 
 // ---------- 10. architecture: one model, many front ends ----------

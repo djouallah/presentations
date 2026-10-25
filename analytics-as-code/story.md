@@ -104,21 +104,22 @@ What really matters is the semantic model.
 ## Why not just write the SQL?
 
 Every developer will ask: why do I need a semantic model? One chart, one query, how hard
-can it be? Take the smallest example there is: five sales, four returns, four stores. Store C
-sold and had no return; store D had a return and no sale. The chart is sales and returns by
-store, one join on the store.
+can it be? Take the smallest example there is: sales and stock, by product. Product A sits
+in two warehouses. Product C sold out, so it has no stock row. Product D is in stock and
+never sold. Nothing unusual. The chart is sold and in stock by product, one join on the
+product.
 
-The join pairs every sale with every return of the same store. Store A has three sales and
-two returns, so six rows: every sale twice, every return three times. Store B has one of
-each: right, by luck. C and D drop out of the join. Store A shows 120 sales instead of 60;
-C and D are missing; sales say 160 instead of 150. B is right, so the spot check passes,
-and nobody blinks at 7%. That's fan-out, and it doesn't throw an error.
+The join pairs every sale with every stock row of the same product. Product A has three
+sales and two warehouses, so six rows: every sale twice, every stock row three times.
+Product B has one of each: right, by luck. C and D drop out of the join. A shows 120 sold
+instead of 60; C and D are missing; units sold say 160 instead of 150. B is right, so the
+spot check passes, and nobody blinks at 7%. That's fan-out, and it doesn't throw an error.
 
-"Joining on a key that repeats is dumb, aggregate first." Fine: one row per store on each
+"Joining on a key that repeats is dumb, aggregate first." Fine: one row per product on each
 side, nothing multiplies. Then which join? An inner join loses C and D. A left join from
-sales loses D's return: 12 instead of 20. Only a full join is right. Aggregating first
-stops the fan-out; the join still decides which stores exist. A semantic model goes through
-the store dimension, every store once, for every chart, and nobody has to think about it.
+sales loses D's stock: 12 instead of 20. Only a full join is right. Aggregating first stops
+the fan-out; the join still decides which products exist. A semantic model goes through the
+product dimension, every product once, for every chart, and nobody has to think about it.
 
 ## One number, many definitions
 
