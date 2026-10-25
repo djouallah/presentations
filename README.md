@@ -4,7 +4,7 @@ Two talks for [Øredev 2026](https://oredev.org/info), the Øredev Developer Con
 
 ## [python-engine/](python-engine/): Python Data Engines, State of the Union 2026
 
-An honest scorecard of DuckDB, Polars, Daft, DataFusion, chDB and LakeSail on a single 16 GB notebook, running the same workload as 2025.
+An honest scorecard of DuckDB, Polars, Daft, DataFusion, chDB and LakeSail on a single 16 GB notebook, running the same workload as 2025. Live dashboard: https://djouallah.github.io/lakehouse_benchmark/, code: https://github.com/djouallah/lakehouse_benchmark.
 
 - `state-of-the-union-python-engines-2026.pptx` / `.pdf`: the deck
 - `abstract.txt`, `story.md`: abstract and talk narrative
