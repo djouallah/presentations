@@ -101,6 +101,24 @@ So yes, I'm back to Power BI after seven years. But it's different. The core is 
 but the storage is no longer tied to the engine, and the front end is written by AI too.
 What really matters is the semantic model.
 
+## Why not just write the SQL?
+
+Every developer will ask: why do I need a semantic model? One chart, one query, what's the
+problem? So write it: generation, demand and price by region for one day, units joined to
+the regional table on region and interval. It looks right, runs fast, passes review.
+
+For New South Wales on 12 October 2026, generation is right. Demand is 68 times too much,
+because each region row comes back once for every generator running. That one you'd
+catch. The price you wouldn't: $763 instead of $648. That afternoon the price spiked to
+$23,107 with 86 generators running; at night there are about 54. The join counts the spike
+86 times and a night interval 54 times. Believable, and wrong. That's fan-out, and the fix
+is old: aggregate each table first, then join.
+
+The semantic model does that for you. Average generation and share by fuel, two measures,
+reads four tables at three grains, each aggregated first and joined on the fuel. One KPI
+tile, the change against the period before, is 141 characters of DAX and 98 SELECTs of SQL.
+Nobody writes that by hand for every chart, and nobody reviews it. I review the measure.
+
 ## One number, many definitions
 
 The dashboard was doing arithmetic everywhere. Summing stations, subtracting for changes,
@@ -111,6 +129,12 @@ chart by chart, disagreed with the first on 84 questions out of 683.
 And if you ask an AI for generation by fuel, it gives you SQL fast and confidently. It
 counts a charging battery as negative generation. On a sunny afternoon in New South Wales
 that's off by hundreds of megawatts. I'll show you in a minute.
+
+The obvious fix is to give the AI the semantic model and let it write the SQL. I'm not
+convinced. It knows the definitions, but it still has to get every join, every grain and
+every fan-out right again, on every question. Most of the time it will; most of the time is
+the problem. The model as context is a hint, not a guarantee. Reading the model isn't the
+same as obeying it.
 
 ## The semantic model is the harness
 
