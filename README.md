@@ -1,6 +1,6 @@
 # Presentations
 
-Two talks for an upcoming conference. Each talk is self-contained in its own folder: deck, speaker notes, images and video.
+Two talks for [Øredev 2026](https://oredev.org/info). Each talk is self-contained in its own folder: deck, speaker notes, images and video.
 
 ## [python-engine/](python-engine/): Python Data Engines, State of the Union 2026
 
