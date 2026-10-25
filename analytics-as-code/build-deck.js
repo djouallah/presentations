@@ -332,6 +332,15 @@ const divider = (k, line, notes, section) => {
   s.addNotes("The fix is old. Sum each table on its own first, one row per store. Then join. One row meets one row, so nothing multiplies. And with a full join, nothing is dropped: store C is back.\n\nYou can write this by hand, of course. For this chart. And the next one. And every combination of measures somebody will ever put on a chart. Or you define SUM of sales once, in a semantic model, and it writes this for every chart. That is what a semantic model is for.");
 }
 
+// ---------- 16c3. the real model ----------
+{
+  const s = slide("CONTENT");
+  s.addText("The real one: 15 tables, 22 relationships, 63 measures", { placeholder: "title" });
+  fit(s, AS + "semantic_model_view.png", 1275, 820, M, 1.35, W - 2 * M, 5.2);
+  at(1); caption(s, "One Ossie file. Facts on the outside, dimensions in the middle: every join is written once, here, and never in a chart.");
+  s.addNotes("That was a toy with two tables. This is the semantic model of this project: fifteen tables, twenty-two relationships, sixty-three measures. Facts on the outside, at different grains: five minutes, hourly, daily. Dimensions in the middle.\n\nEvery join is written once, here. A chart never writes a join; it names measures, and the model knows how to get there without fanning out.");
+}
+
 // ---------- 16d. 141 characters, 98 SELECTs ----------
 {
   const s = slide("CONTENT");
