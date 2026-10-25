@@ -132,21 +132,6 @@ const divider = (k, line, notes, section) => {
 
 { divider(1, "Learning to code, one question at a time", "Then I went down the rabbit hole.", "The rabbit hole"); }
 
-// ---------- 4. raw data + 2019 SQL ----------
-{
-  const s = slide("CONTENT");
-  s.addText("I didn't write code", { placeholder: "title" });
-  at(1); s.addText("What AEMO publishes", { x: M, y: 1.45, w: 5.8, h: 0.4, fontSize: 16, bold: true, color: C.accent1, margin: 0, isTextBox: true, objectName: name() });
-  fit(s, IMG + "2019-09_datastudio_4.jpg", 808, 287, M, 1.95, 5.8, 2.6);
-  at(2); s.addText("My first SQL, 2019", { x: 6.9, y: 1.45, w: 5.8, h: 0.4, fontSize: 16, bold: true, color: C.accent1, margin: 0, isTextBox: true, objectName: name() });
-  fit(s, IMG + "2019-09_datastudio_6.jpg", 939, 294, 6.9, 1.95, 5.8, 2.6);
-  at(3); s.addText([
-    { text: "The smart people spun up a virtual machine and wrote everything by hand.", options: { breakLine: true } },
-    { text: "Python, pandas, SQL, a cloud warehouse.", options: {} },
-  ], { x: M, y: 4.95, w: W - 2 * M, h: 1.1, fontSize: 20, color: C.text1, margin: 0, paraSpaceAfter: 8, isTextBox: true, objectName: name() });
-  s.addNotes("So I went looking at what other people did. The smart people spun up a virtual machine and wrote everything by hand. I didn't write code.\n\nI learned anyway. Python, pandas, a cloud data warehouse, and a free BI service on top.");
-}
-
 // ---------- 5. Stack Overflow ----------
 {
   const s = slide("CONTENT");
@@ -169,24 +154,6 @@ const divider = (k, line, notes, section) => {
 }
 
 { divider(2, "Open tables, and an AI that writes every line", "Then AI arrived, and made a rebuild possible.", "dbt, Iceberg and AI"); }
-
-// ---------- 11. commits per month ----------
-{
-  const s = slide("CONTENT");
-  s.addText("Then AI", { placeholder: "title" });
-  s.addChart(pres.charts.BAR, [{ name: "Commits", labels: ["Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct 1–16"], values: [81, 9, 10, 5, 3, 40, 8, 334] }], {
-    x: M, y: 1.4, w: 8.2, h: 5.0, barDir: "col", chartColors: [HEX.accent1],
-    showValue: true, dataLabelPosition: "outEnd", dataLabelColor: HEX.dk1, dataLabelFontSize: 14, dataLabelFontFace: "+mn-lt",
-    catAxisLabelColor: HEX.dk2, catAxisLabelFontSize: 14, catAxisLabelFontFace: "+mn-lt",
-    valAxisHidden: true, valGridLine: { style: "none" }, catGridLine: { style: "none" },
-    catAxisLineShow: false, showLegend: false, showTitle: true, title: "My commits to this repo per month, 2026",
-    titleColor: HEX.dk2, titleFontSize: 14, titleFontFace: "+mn-lt", barGapWidthPct: 40, objectName: name(),
-  });
-  at(1); s.addText([
-    { text: "Every line of this repo is written by AI. Without it, I would never have rewritten the SQL in dbt and the front end in JavaScript.", options: { color: C.text1 } },
-  ], { x: 9.2, y: 3.75, w: 3.5, h: 2.6, fontSize: 18, margin: 0, valign: "top", isTextBox: true, objectName: name() });
-  s.addNotes("AI had been creeping in for a while. In 2025 I connected Claude to the database and asked what it thought. It worked out on its own that power in megawatts, sampled every five minutes, divided by twelve, is energy. That was the moment I knew things would not be the same.\n\nThis year it became useful enough to change how I work. This version was written by AI from its first day. Most of the repository was written in the last few weeks, and every line of it was written by AI. Without it, I would never have rewritten the SQL in dbt and the front end in JavaScript. dbt and Iceberg were the infrastructure; AI made it possible.\n\nAnd it is too powerful. That's a good thing, and that's the problem.");
-}
 
 // ---------- 10c. same SQL, other engines ----------
 {
@@ -268,49 +235,6 @@ const divider = (k, line, notes, section) => {
   code(s, "SELECT product,\n       SUM(s.units) AS sold,\n       SUM(k.units) AS in_stock\nFROM sales s\nJOIN stock k USING (product)\nGROUP BY product;", 7.9, 2.4, W - M - 7.9, 2.5, 16);
   at(2); s.addText("Five sales, four stock rows.", { x: 7.9, y: 5.15, w: W - M - 7.9, h: 0.6, fontSize: 22, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: name() });
   s.addNotes("Here is the objection every developer in this room has. Why do I need a semantic model? I'll write the SQL for each chart. One chart, one query, how hard can it be?\n\nSo let's take the smallest example I can think of. Sales, and stock. 150 units sold, 20 in stock. Product A sits in two warehouses. Product C sold out, so it has no stock row. Product D is in stock and has never sold. Nothing unusual about any of that.\n\nThe chart: sold and in stock, by product. One join, on the product. Everybody has written this query.");
-}
-
-// ---------- 16b. the join pairs every sale with every stock row ----------
-{
-  const s = slide("CONTENT");
-  s.addText("The join pairs every sale with every stock row", { placeholder: "title" });
-  const wd = [1.3, 1.6, 1.6], x = M, y = 1.5;
-  tableRow(s, x, y, wd, ["product", "sold", "in stock"], { head: true });
-  const row = (i, cells, o) => tableRow(s, x, y + (i + 1) * ROW_H, wd, cells, o);
-  const sold = v => ({ text: v, color: HEX.accent2 }), stk = v => ({ text: v, color: HEX.accent1 }), gone = v => ({ text: v, color: HEX.accent4 });
-  const say = (t, ty, color = C.text1) => s.addText(t, { x: 5.6, y: ty, w: W - M - 5.6, h: 1.1, fontSize: 22, color, margin: 0, valign: "top", isTextBox: true, objectName: name() });
-  at(1);
-  [10, 10, 20, 20, 30, 30].forEach((v, i) => row(i, ["A", sold(v), stk(5)]));
-  say("Product A: each sale comes back twice, once per warehouse. Each stock row comes back three times, once per sale.", 1.85);
-  at(2); row(6, ["B", sold(40), stk(2)]);
-  say("Product B: one sale, one warehouse, so it comes back once. Right, by luck.", 3.25);
-  at(3); row(7, [gone("C"), gone(50), gone("no stock")], { fill: HEX.lt1 });
-  say("C sold out, no stock row: its sales are dropped.", 4.25, C.accent3);
-  at(4); row(8, [gone("D"), gone("no sale"), gone(8)], { fill: HEX.lt1 });
-  say("D never sold: its stock is dropped.", 4.95, C.accent3);
-  at(5); tableRow(s, x, y + 10 * ROW_H + 0.12, wd, [{ text: "SUM", bold: true }, { text: 120 + 40, color: HEX.accent3, bold: true }, { text: 30 + 2, color: HEX.accent3, bold: true }]);
-  say("Five sales became seven rows, and two products vanished.", 5.75);
-  s.addNotes("This is what the join does. It pairs every sale with every stock row of the same product.\n\nProduct A has three sales and stock in two warehouses, so you get six rows. Every sale twice, every stock row three times.\n\nProduct B has one sale and one warehouse: one row. B is right, by luck.\n\nProduct C sold out, so there is no stock row, and the join drops its sales. Product D never sold, so the join drops its stock.\n\nFive sales became seven rows, two products vanished, and then we sum.");
-}
-
-// ---------- 16c. what the chart shows ----------
-{
-  const s = slide("CONTENT");
-  s.addText("What the chart shows", { placeholder: "title" });
-  const wd = [1.8, 2.3, 2.3, 2.3, 2.3], x = (W - 11) / 2, y = 1.5, o = { fontSize: 22, rowH: 0.58 };
-  const bad = v => ({ text: v, color: HEX.accent3, bold: true }), good = v => ({ text: v, color: HEX.accent2, bold: true }), truth = v => ({ text: v, color: HEX.dk2 });
-  tableRow(s, x, y, wd, ["product", "sold", "should be", "in stock", "should be"], { head: true, ...o });
-  const rows = [
-    ["A", bad(120), truth(60), bad(30), truth(10)],
-    ["B", good(40), truth(40), good(2), truth(2)],
-    ["C", bad("missing"), truth(50), bad("missing"), truth(0)],
-    ["D", bad("missing"), truth(0), bad("missing"), truth(8)],
-    [{ text: "Total", bold: true }, bad(160), truth(150), bad(32), truth(20)],
-  ];
-  rows.forEach((r, i) => { at(i + 1); tableRow(s, x, y + 0.58 * (i + 1) + (i === 4 ? 0.12 : 0), wd, r, o); });
-  at(6); s.addText("B is right, so the spot check passes.", { x, y: 5.25, w: 11, h: 0.55, fontSize: 26, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: name() });
-  at(7); s.addText("Units sold: 160 instead of 150. 7% off, and nobody blinks.", { x, y: 5.9, w: 11, h: 0.55, fontSize: 26, bold: true, color: C.accent3, margin: 0, isTextBox: true, objectName: name() });
-  s.addNotes("So here is the chart. Product A: 120 sold instead of 60, 30 in stock instead of 10. Product B: right. Products C and D: missing.\n\nNow, which product do you check? If you check B, it's right, and the test passes. And units sold say 160 instead of 150. Seven per cent off. Nobody blinks at seven per cent.\n\nThis is called fan-out. It is not a beginner's mistake; it is what a join does. And it doesn't throw an error. It just gives you a number.");
 }
 
 // ---------- 16c2. aggregate first, then which join? ----------
