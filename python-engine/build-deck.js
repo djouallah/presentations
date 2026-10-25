@@ -698,16 +698,14 @@ pres.addSection({ title: "01 What changed since 2025" });
     `I gave this talk last year: Life Beyond Pandas, 2 cores, Delta. This is what changed. ` +
     `SQL. Polars: The surprise of the year. I knew Polars as a DataFrame library, with SQL on the side. Now it runs all 99 TPC-DS-like queries in SQL at scale factor 100 in ${fmt(pl.mean)}, the fastest of every engine here; next is ${LABEL[next.engine]} at ${fmt(next.mean)}, on the same 4-core box. On 2.0.0-rc.2 its streaming engine killed the runner at TPC-H-like SF30. What changed is optimizer work on 2.0 and main between August and October 2026: join reordering that uses scan statistics (#28985, #29038), dynamic predicates for hash joins (#29312), bloom filters pushed into the probe side (#29423). Before that, joins ran in the order the SQL wrote them, and TPC-DS star joins suffered most. It also fixed most of the SQL gaps I reported. This is a main build, not a release. Given enough time, every DataFrame library becomes a database. ` +
     `Iceberg. Very important. The expectation has changed: supporting Iceberg is now a no-brainer, and a missing feature is treated as a bug. Polars accepts SQL parity gaps as bugs. That's interesting. The biggest change since the 2025 talk (Life Beyond Pandas, 2 cores, Delta). Last year every engine wrote through delta-rs: the scorecard's native table SQL syntax row was red for DuckDB, Polars, Daft, chDB and DataFusion, and in the streaming CSV write LakeSail and DataFusion failed while Polars loaded everything in memory. This year every engine writes Iceberg itself, and with SQL. Python engines that run SQL and write Iceberg are the new normal. ` +
-    `AI. The DataFrame API used to be my biggest pain point: a different syntax for every engine. In recent months AI got so good at it that I care less. I don't write the code anymore, I look at the tests and the results. That's one of the biggest changes since last year. Funny moment: the real workload is a dbt project. I was scared of Jinja's {{ }} notation; I only got it running because AI wrote it. AI writes the code; I review the tests and the results. ` +
+    `AI. It's very good at reproducing bugs: it drafts the repro, I check it, one bug per issue. ` +
     `Python engines aren't niche anymore. They're mainstream, and a bit boring.`);
   const themes = [
     ["SQL", ["Polars SQL went from a side feature to all 99 TPC-DS-like queries.",
       "Given enough time, every DataFrame library becomes a database."]],
     ["Iceberg", ["Iceberg is the new baseline.",
       "Last year most of these engines couldn’t write a table; now they all write Iceberg."]],
-    ["AI", ["I don’t care about the lack of a standard DataFrame API.",
-      "I became a dbt believer only because of AI: I was scared of Jinja.",
-      "I don’t write any code, I just review the tests."]],
+    ["AI", ["It’s very good at reproducing bugs."]],
   ];
   // Every line on its own click; a theme's name comes with its first line.
   let y = 1.55, click = 0;
@@ -722,6 +720,12 @@ pres.addSection({ title: "01 What changed since 2025" });
   }
   at(++click);
   T(s, "Python engines aren’t niche anymore. They’re mainstream, and a bit boring.", { x: MX, y: y + 0.2, w: CW, h: 0.6, fontSize: 24, bold: true, color: C.accent2 });
+}
+
+{
+  const s = pres.addSlide({ masterName: "PUNCHLINE", sectionTitle: "01 What changed since 2025" });
+  s.addText("The DataFrame API used to be a pain point. For a couple of months now, I don’t care.", { placeholder: "title" });
+  s.addNotes("The DataFrame API used to be my biggest pain point: a different syntax for every engine, and no standard. For a couple of months now, I don't care.");
 }
 
 // ---------- 2. Iceberg ----------
@@ -851,7 +855,7 @@ const LEGS = JSON.parse(fs.readFileSync("c:/git/bench/docs/data/workload.json", 
   const days = fixed.map((i) => Math.round((Date.parse(i.closed) - Date.parse(i.opened)) / 864e5)).sort((x, y) => x - y);
   const m = days.length >> 1, median = days.length % 2 ? days[m] : (days[m - 1] + days[m]) / 2;
   const polars = reports.filter((i) => i.engine === "Polars"), polarsFixed = polars.filter((i) => i.state === "fixed");
-  shotSlide("06 Real-life use case", "Every report, one dot each", "reports", "AI drafts the repro, I check it, one bug per issue.",
+  shotSlide("06 Real-life use case", "Every report, one dot each", "reports", null,
     `From the dashboard's Bug reports tab: one dot per report, oldest first. ${reports.length} reports filed, ${fixed.length} fixed, ${median} days median from report to fix. The best help for an engine is a bug report it can reproduce. AI makes the repro cheap: it drafts, I check, one bug per issue. Polars fixed ${polarsFixed.length} of ${polars.length}, and went from crashing at SF30 to finishing everything at SF100.`);
 }
 // ---------- 7. What I learned ----------
@@ -920,20 +924,6 @@ section("07 What I learned", "07", "What I learned");
   at(4);
   T(s, "Same SQL, not the same behaviour. The fix: DECIMAL(18,5), nothing rounds.", { x: MX, y: 5.8, w: CW, h: 0.6, fontSize: 24, bold: true, color: C.accent2 });
 }
-{
-  // The user's words, toned down: report bugs, not floods of pull requests.
-  const s = tagBuilds(pres.addSlide({ masterName: "STATEMENT", sectionTitle: "07 What I learned" }));
-  s.addNotes("AI makes a repro cheap. The best use of it is not a flood of pull requests: report actual bugs, not feature requests. Check it isn't already reported. Make the smallest possible repro: one script on a clean machine, expected and actual, the version, and main.");
-  s.addText("Instead of flooding projects with AI pull requests, report bugs.", { placeholder: "title" });
-  const row = { x: MX, w: CW, h: 0.6, fontSize: 30, bold: true, fontFace: THEME.headFontFace, color: C.text1 };
-  at(1);
-  T(s, "Bugs, not feature requests.", { ...row, y: 1.75 });
-  at(2);
-  T(s, "Check it isn’t a duplicate.", { ...row, y: 2.5 });
-  at(3);
-  T(s, "The smallest possible repro.", { ...row, y: 3.25 });
-}
-
 pres.addSection({ title: "Close" });
 // Every engine that finishes the real-life dbt workload: the dashboard's Real workload tab
 // (docs/data/workload.json), every model built and no file left behind.
