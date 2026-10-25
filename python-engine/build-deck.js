@@ -701,7 +701,8 @@ pres.addSection({ title: "01 What changed since 2025" });
     `AI. The DataFrame API used to be my biggest pain point: a different syntax for every engine. In recent months AI got so good at it that I care less. I don't write the code anymore, I look at the tests and the results. That's one of the biggest changes since last year. Funny moment: the real workload is a dbt project. I was scared of Jinja's {{ }} notation; I only got it running because AI wrote it. AI writes the code; I review the tests and the results. ` +
     `Python engines aren't niche anymore. They're mainstream, and a bit boring.`);
   const themes = [
-    ["SQL", ["Polars SQL went from a side feature to all 99 TPC-DS-like queries."]],
+    ["SQL", ["Polars SQL went from a side feature to all 99 TPC-DS-like queries.",
+      "Given enough time, every DataFrame library becomes a database."]],
     ["Iceberg", ["Iceberg is the new baseline.",
       "Last year most of these engines couldn’t write a table; now they all write Iceberg."]],
     ["AI", ["I don’t care about the lack of a standard DataFrame API.",
@@ -933,8 +934,13 @@ section("07 What I learned", "07", "What I learned");
   T(s, "The smallest possible repro.", { ...row, y: 3.25 });
 }
 
+pres.addSection({ title: "Close" });
 {
-  pres.addSection({ title: "Close" });
+  const s = pres.addSlide({ masterName: "PUNCHLINE", sectionTitle: "Close" });
+  s.addText("These engines work, and that’s the story.", { placeholder: "title" });
+  s.addNotes("These engines work, and that's the story. To make it work you need a whole ecosystem: Iceberg support, the catalog, a dbt adapter, spill to disk.");
+}
+{
   const s = pres.addSlide({ masterName: "TITLE", sectionTitle: "Close" });
   s.addText("Thank you", { placeholder: "title" });
   s.addText("Questions?  ·  djouallah.github.io/lakehouse_benchmark", { placeholder: "body" });
@@ -943,7 +949,7 @@ section("07 What I learned", "07", "What I learned");
   s.addText("Scan for the code: github.com/djouallah/lakehouse_benchmark", { isTextBox: true, margin: 0, x: 8.9, y: 5.1, w: 4.5, h: 0.7, fontSize: 14, color: C.accent3, align: "center" });
   // Every engine that finishes the real-life dbt workload, by name: the dashboard's Real workload tab
   // (docs/data/workload.json), every model built and no file left behind.
-  s.addNotes("These engines work, and that's the story. To make it work you need a whole ecosystem: Iceberg support, the catalog, a dbt adapter, spill to disk.");
+  s.addNotes("Questions?");
   const legs = JSON.parse(fs.readFileSync("c:/git/bench/docs/data/workload.json", "utf8")).legs;
   const done = Object.keys(legs).filter((e) => legs[e].status === "success" && legs[e].files_behind === 0 && legs[e].models_ok === legs[e].models)
     .sort((a, b) => LABEL[a].localeCompare(LABEL[b], "en", { sensitivity: "base" }));
