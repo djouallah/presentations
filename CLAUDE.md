@@ -12,7 +12,7 @@ Private repo holding two talks for Øredev 2026 (4–6 Nov 2026, Malmö, Sweden)
 ## analytics-as-code/: Analytics as Code
 
 - Source repo: https://github.com/djouallah/analytics-as-code (local clone `C:\git\analytics-as-code`), live demo https://nemtracker.github.io/.
-- Deck is `talk.pptx`; `talk.md` is the outline, `story.md` the narrative, `abstract.txt` the submitted abstract.
+- Deck is `analytics-as-code.pptx`; `talk.md` is the outline, `story.md` the narrative, `abstract.txt` the submitted abstract.
 - Only the 1080p export of the demo video is kept; the 360 MB master was deliberately deleted. Keep files under GitHub's 100 MB limit.
 
 Both folders used to live at `<source repo>/presentation/` (gitignored there) and were moved here.
