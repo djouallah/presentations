@@ -190,6 +190,30 @@ const divider = (k, line, notes, section) => {
   s.addNotes("AI had been creeping in for a while. In 2025 I connected Claude to the database and asked what it thought. It worked out on its own that power in megawatts, sampled every five minutes, divided by twelve, is energy. That was the moment I knew things would not be the same.\n\nThis year it became useful enough to change how I work. This version was written by AI from its first day. Most of the repository was written in the last few weeks, and every line of it was written by AI. Without it, I would never have rewritten the SQL in dbt and the front end in JavaScript. dbt and Iceberg were the infrastructure; AI made it possible.\n\nAnd it is too powerful. That's a good thing, and that's the problem.");
 }
 
+// ---------- 10c. same SQL, other engines ----------
+{
+  const s = slide("CONTENT");
+  s.addText("It's SQL, so it isn't tied to DuckDB", { placeholder: "title" });
+  s.addText("dbt models are SQL: the same project runs on any engine that reads and writes Iceberg.", { x: M, y: 1.35, w: W - 2 * M, h: 0.5, fontSize: 18, color: C.text2, margin: 0, isTextBox: true, objectName: name() });
+  const engines = [
+    ["DuckDB", "one node, in process"],
+    ["Spark", "a cluster"],
+    ["Polars", "DataFrames, with SQL"],
+    ["Trino", "distributed SQL"],
+    ["LakeSail", "Spark SQL, in Rust"],
+  ];
+  const gap = 0.3, bw = (W - 2 * M - gap * (engines.length - 1)) / engines.length, y = 2.4, bh = 1.6;
+  at(1);
+  engines.forEach(([t, sub], i) => {
+    const x = M + i * (bw + gap);
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w: bw, h: bh, fill: { color: C.background2 }, line: { color: C.accent6, width: 0.75 }, rectRadius: 0.1, objectName: name() });
+    s.addText([{ text: t, options: { bold: true, fontSize: 24, color: C.text1, breakLine: true } }, { text: sub, options: { fontSize: 15, color: C.text2 } }],
+      { x: x + 0.25, y: y + 0.2, w: bw - 0.5, h: bh - 0.4, valign: "middle", margin: 0, isTextBox: true, objectName: name() });
+  });
+  at(2); s.addText("The engine is a choice, like the storage.", { x: M, y: 4.8, w: W - 2 * M, h: 0.6, fontSize: 26, bold: true, color: C.accent1, margin: 0, isTextBox: true, objectName: name() });
+  s.addNotes("Nothing in this setup belongs to a vendor. Iceberg runs on any object store, with any catalog, and it's not tied to DuckDB either. dbt models are SQL, so the same project can run on any engine that reads and writes Iceberg: DuckDB on one node, Spark on a cluster, Polars, Trino, LakeSail.\n\nThe engine is a choice, like the storage.");
+}
+
 // ---------- 13. the test rewrite ----------
 {
   const s = slide("CONTENT");
@@ -215,49 +239,6 @@ const divider = (k, line, notes, section) => {
   s.addNotes("With AI writing the code, I rebuilt everything on two open pieces: Iceberg, and DuckDB in the browser. Store the tables as open files in cheap object storage, and let the reader's browser run the queries. No server, no warehouse, nothing running while nobody is looking.");
 }
 
-// ---------- 10c. same SQL, other engines ----------
-{
-  const s = slide("CONTENT");
-  s.addText("It's SQL, so it isn't tied to DuckDB", { placeholder: "title" });
-  s.addText("dbt models are SQL: the same project runs on any engine that reads and writes Iceberg.", { x: M, y: 1.35, w: W - 2 * M, h: 0.5, fontSize: 18, color: C.text2, margin: 0, isTextBox: true, objectName: name() });
-  const engines = [
-    ["DuckDB", "one node, in process"],
-    ["Spark", "a cluster"],
-    ["Polars", "DataFrames, with SQL"],
-    ["Trino", "distributed SQL"],
-    ["LakeSail", "Spark SQL, in Rust"],
-  ];
-  const gap = 0.3, bw = (W - 2 * M - gap * (engines.length - 1)) / engines.length, y = 2.4, bh = 1.6;
-  at(1);
-  engines.forEach(([t, sub], i) => {
-    const x = M + i * (bw + gap);
-    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w: bw, h: bh, fill: { color: C.background2 }, line: { color: C.accent6, width: 0.75 }, rectRadius: 0.1, objectName: name() });
-    s.addText([{ text: t, options: { bold: true, fontSize: 24, color: C.text1, breakLine: true } }, { text: sub, options: { fontSize: 15, color: C.text2 } }],
-      { x: x + 0.25, y: y + 0.2, w: bw - 0.5, h: bh - 0.4, valign: "middle", margin: 0, isTextBox: true, objectName: name() });
-  });
-  at(2); s.addText("The engine is a choice, like the storage.", { x: M, y: 4.8, w: W - 2 * M, h: 0.6, fontSize: 26, bold: true, color: C.accent1, margin: 0, isTextBox: true, objectName: name() });
-  s.addNotes("Nothing in this setup belongs to a vendor. Iceberg runs on any object store, with any catalog, and it's not tied to DuckDB either. dbt models are SQL, so the same project can run on any engine that reads and writes Iceberg: DuckDB on one node, Spark on a cluster, Polars, Trino, LakeSail.\n\nThe engine is a choice, like the storage.");
-}
-
-// ---------- 9. one commit: the storage is a choice too ----------
-{
-  const s = slide("CONTENT");
-  s.addText("Changing storage vendor took one commit", { placeholder: "title" });
-  at(1); s.addText("48", { x: M, y: 1.7, w: 3.6, h: 1.6, fontSize: 96, bold: true, color: C.accent1, margin: 0, isTextBox: true, objectName: name() });
-  s.addText("lines of code. One commit, I promise. OK, 48 lines. 25 August 2026", { x: M, y: 3.35, w: 3.6, h: 1.2, fontSize: 18, color: C.text2, margin: 0, valign: "top", isTextBox: true, objectName: name() });
-  at(2); code(s,
-    "attach:\n" +
-    "  - path: \"{{ env_var('WAREHOUSE_PATH') }}\"\n" +
-    "    type: iceberg\n" +
-    "    options:\n" +
-    "      endpoint: \"{{ env_var('ONELAKE_ENDPOINT') }}\"\n" +
-    "      token: \"{{ env_var('ONELAKE_TOKEN') }}\"",
-    4.7, 1.7, 8.0, 2.5, 17);
-  s.addText("profiles.yml: point dbt at the new catalog. The models, the SQL and the data format stay the same.", { x: 4.7, y: 4.4, w: 8.0, h: 0.8, fontSize: 16, color: C.text2, margin: 0, valign: "top", isTextBox: true, objectName: name() });
-  at(3); caption(s, "Iceberg is the contract, not the vendor. That is the boring reason open formats matter.");
-  s.addNotes("And the storage is a choice too. In August 2026 I moved the tables to another catalog, OneLake.\n\nThat move was one commit. The models barely changed, because the table format was Iceberg, not a vendor's. That is the boring reason open formats matter.");
-}
-
 // ---------- 10d. still not happy (segue) ----------
 {
   const s = slide("CONTENT");
@@ -275,18 +256,19 @@ const divider = (k, line, notes, section) => {
 {
   const s = slide("CONTENT");
   s.addText("Why not just write the SQL?", { placeholder: "title" });
-  s.addText("A developer will say: one chart, one query. How hard can it be?", { x: M, y: 1.35, w: W - 2 * M, h: 0.5, fontSize: 18, color: C.text2, margin: 0, isTextBox: true, objectName: name() });
   const wd = [1.3, 1.6];
   label(s, "sales", M, 2.0, C.accent2);
   tableRow(s, M, 2.4, wd, ["store", "amount"], { head: true });
   [["A", 10], ["A", 20], ["A", 30], ["B", 40], ["C", 50]].forEach(([st, v], i) => tableRow(s, M, 2.4 + (i + 1) * ROW_H, wd, [st, { text: v, color: HEX.accent2 }]));
+  tableRow(s, M, 2.4 + 6 * ROW_H + 0.12, wd, [{ text: "total", bold: true }, { text: 150, color: HEX.accent2, bold: true }]);
   label(s, "returns", 4.0, 2.0, C.accent1);
   tableRow(s, 4.0, 2.4, wd, ["store", "amount"], { head: true });
   [["A", 5], ["A", 5], ["B", 2]].forEach(([st, v], i) => tableRow(s, 4.0, 2.4 + (i + 1) * ROW_H, wd, [st, { text: v, color: HEX.accent1 }]));
+  tableRow(s, 4.0, 2.4 + 4 * ROW_H + 0.12, wd, [{ text: "total", bold: true }, { text: 12, color: HEX.accent1, bold: true }]);
   at(1); label(s, "the chart: sales and returns by store", 7.6, 2.0, C.text2);
   code(s, "SELECT store,\n       SUM(s.amount) AS sales,\n       SUM(r.amount) AS returns\nFROM sales s\nJOIN returns r USING (store)\nGROUP BY store;", 7.6, 2.4, W - M - 7.6, 2.5, 16);
   at(2); s.addText("Five sales, three returns, one join.", { x: 7.6, y: 5.15, w: W - M - 7.6, h: 0.6, fontSize: 22, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: name() });
-  s.addNotes("Here is the objection every developer in this room has. Why do I need a semantic model? I'll write the SQL for each chart. One chart, one query, how hard can it be?\n\nSo let's take the smallest example I can think of. Five sales, three returns, three stores. The chart is sales and returns by store. One join, on the store. Everybody has written this query.");
+  s.addNotes("Here is the objection every developer in this room has. Why do I need a semantic model? I'll write the SQL for each chart. One chart, one query, how hard can it be?\n\nSo let's take the smallest example I can think of. Five sales, three returns, three stores. 150 of sales, 12 of returns. The chart is sales and returns by store. One join, on the store. Everybody has written this query.");
 }
 
 // ---------- 16b. the join pairs every sale with every return ----------
@@ -363,7 +345,7 @@ const divider = (k, line, notes, section) => {
   s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 8.3, y: 3.3, w: 4.4, h: 2.5, fill: { color: C.background1 }, line: { color: C.accent1, width: 2 }, rectRadius: 0.1, objectName: name() });
   s.addText([{ text: String(selects), options: { fontSize: 72, bold: true, color: C.accent1, breakLine: true } }, { text: `SELECTs and ${sql.length.toLocaleString("en-US")} characters`, options: { fontSize: 16, color: C.text1, breakLine: true } }, { text: "for one KPI tile", options: { fontSize: 16, color: C.text1 } }],
     { x: 8.55, y: 3.4, w: 3.9, h: 2.3, valign: "middle", margin: 0, isTextBox: true, objectName: name() });
-  at(3); caption(s, "The same period before, the same length. Every hour present in both. Two facts, two grains each. Written by the compiler, every time.");
+  at(3); caption(s, "The same period before, the same length. Every hour present in both. Two facts, two grains each. Written by a toy compiler, every time.");
   s.addNotes("One KPI tile: the change in average generation against the period before. The chart asks for one measure and a date range.\n\nThis is the SQL that runs. The period before, of the same length. A check that both periods have every hour. Energy from two tables, hours from two more. Ninety-eight SELECTs.\n\nI don't review this. I review the measure, one line in one file, and the compiler writes this the same way every time.");
 }
 
