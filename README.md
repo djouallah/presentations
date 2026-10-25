@@ -19,5 +19,5 @@ A real analytics platform (ingestion, transformation, storage, testing and an in
 - `talk.pptx`: the deck
 - `abstract.txt`, `talk.md`, `story.md`: abstract, outline and talk narrative
 - `first-look-at-apache-ossie.md`, `reference.md`: companion notes
-- `anatomy-of-a-click-1080p.mp4`: demo video (the 360 MB master is kept locally only; it is over GitHub's 100 MB limit)
+- `anatomy-of-a-click-1080p.mp4`: demo video
 - `img/`: diagrams and history screenshots
