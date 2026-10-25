@@ -232,9 +232,16 @@ const divider = (k, line, notes, section) => {
   [["A", "north", 5], ["A", "south", 5], ["B", "north", 2], ["D", "south", 8]].forEach(([p, w, v], i) => tableRow(s, 3.6, 2.4 + (i + 1) * ROW_H, kw, [p, { text: w, color: HEX.dk2 }, stk(v)]));
   tableRow(s, 3.6, 2.4 + 5 * ROW_H + 0.12, kw, [{ text: "total", bold: true }, "", { text: 20, color: HEX.accent1, bold: true }]);
   at(1); label(s, "the chart: sold and in stock, by product", 7.9, 2.0, C.text2);
-  code(s, "SELECT product,\n       SUM(s.units) AS sold,\n       SUM(k.units) AS in_stock\nFROM sales s\nJOIN stock k USING (product)\nGROUP BY product;", 7.9, 2.4, W - M - 7.9, 2.5, 16);
-  at(2); s.addText("Five sales, four stock rows.", { x: 7.9, y: 5.15, w: W - M - 7.9, h: 0.6, fontSize: 22, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: name() });
-  s.addNotes("Here is the objection every developer in this room has. Why do I need a semantic model? I'll write the SQL for each chart. One chart, one query, how hard can it be?\n\nSo let's take the smallest example I can think of. Sales, and stock. 150 units sold, 20 in stock. Product A sits in two warehouses. Product C sold out, so it has no stock row. Product D is in stock and has never sold. Nothing unusual about any of that.\n\nThe chart: sold and in stock, by product. One join, on the product. Everybody has written this query.");
+  code(s, "SELECT product,\n       SUM(s.units) AS sold,\n       SUM(k.units) AS in_stock\nFROM sales s\nJOIN stock k USING (product)\nGROUP BY product;", 7.9, 2.4, W - M - 7.9, 2.1, 16);
+  // what the query returns: the join pairs every sale with every stock row, and drops C and D
+  const bad = v => ({ text: v, color: HEX.accent3, bold: true }), rw = [1.5, 1.5, 1.83];
+  at(2); label(s, "what comes back", 7.9, 4.65, C.text2);
+  tableRow(s, 7.9, 5.0, rw, ["product", "sold", "in stock"], { head: true });
+  tableRow(s, 7.9, 5.0 + ROW_H, rw, ["A", bad(120), bad(30)]);
+  tableRow(s, 7.9, 5.0 + 2 * ROW_H, rw, ["B", sold(40), stk(2)]);
+  tableRow(s, 7.9, 5.0 + 3 * ROW_H + 0.08, rw, [{ text: "total", bold: true }, bad(160), bad(32)]);
+  at(3); s.addText("A doubled. C and D gone. 160 instead of 150.", { x: M, y: 5.75, w: 7.0, h: 0.5, fontSize: 22, bold: true, color: C.accent3, margin: 0, isTextBox: true, objectName: name() });
+  s.addNotes("Here is the objection every developer in this room has. Why do I need a semantic model? I'll write the SQL for each chart. One chart, one query, how hard can it be?\n\nSo let's take the smallest example I can think of. Sales, and stock. 150 units sold, 20 in stock. Product A sits in two warehouses. Product C sold out, so it has no stock row. Product D is in stock and has never sold. Nothing unusual about any of that.\n\nThe chart: sold and in stock, by product. One join, on the product. Everybody has written this query.\n\nAnd here is what comes back. The join pairs every sale with every stock row of the same product: A's three sales meet two warehouses, so every sale comes back twice and A says 120 instead of 60. C has no stock row and D has no sale, so the join drops both. Units sold: 160 instead of 150. B is right, so a spot check passes. That's fan-out, and it doesn't throw an error.");
 }
 
 // ---------- 16c2. aggregate first, then which join? ----------
