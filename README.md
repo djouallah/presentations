@@ -12,7 +12,7 @@ An honest scorecard of DuckDB, Polars, Daft, DataFusion, chDB and LakeSail on a 
 - `capture.py`, `shots/`: dashboard screenshots used in the slides
 - `2025/`: last year's deck
 
-## [analytics-as-code/](analytics-as-code/): Anatomy of a Click
+## [analytics-as-code/](analytics-as-code/): Analytics as Code
 
 A real analytics platform (ingestion, transformation, storage, testing and an interactive dashboard) shipped from a single Git repo: dbt-duckdb in CI, an Iceberg REST catalog as the only persistent layer, and a DuckDB-WASM dashboard in the browser. No orchestrator, no warehouse compute, no backend API. Live demo: https://nemtracker.github.io/, code: https://github.com/djouallah/analytics-as-code.
 

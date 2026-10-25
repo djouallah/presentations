@@ -1,3 +1,5 @@
+Analytics as Code
+
 A real analytics platform: ingestion, transformation, storage, testing, and an interactive dashboard, all shipped from a single Git repo. No orchestrator, no warehouse compute, no backend API.
 
 This talk walks through a working system built with dbt-duckdb in CI, an Iceberg REST catalog as the only persistent layer, and a DuckDB-WASM dashboard querying native files directly in the browser. Over 1B records processed, with no servers to maintain.
