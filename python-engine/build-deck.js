@@ -63,6 +63,15 @@ pres.defineSlideMaster({
   ],
   slideNumber: { x: 12.2, y: 6.95, w: 0.6, h: 0.3, fontSize: 11, color: H.accent5, align: "right" },
 });
+// A picture with no title: the CONTENT background, footer and slide number.
+pres.defineSlideMaster({
+  title: "SHOT",
+  background: { color: H.lt1 },
+  objects: [
+    { text: { text: "Python Data Engines · State of the Union 2026", options: { x: MX, y: 6.95, w: 6, h: 0.3, fontSize: 11, color: H.accent5, margin: 0 } } },
+  ],
+  slideNumber: { x: 12.2, y: 6.95, w: 0.6, h: 0.3, fontSize: 11, color: H.accent5, align: "right" },
+});
 // One line, alone, on the dark background: no footer, no slide number.
 pres.defineSlideMaster({
   title: "PUNCHLINE",
@@ -828,8 +837,12 @@ const LANDED = (() => {
   const m = fs.readFileSync("c:/git/bench/docs/index.html", "utf8").match(/const LANDED = \{ gb: ([\d.]+), date: "([^"]+)"/);
   return { gb: +m[1], date: m[2] };
 })();
-shotSlide("05 Real-life use case", "The real workload", "workload", null,
-  `From the dashboard's Real workload tab: one dbt project, incremental with MERGE, never reset. The source is ${Math.round(LANDED.gb)} GB of AEMO CSV files (measured ${LANDED.date}). Same dbt project, five engines, same catalog; Iceberg made that a config change. This is the real-life benchmark: dbt orchestrates the SQL, every model is written to Iceberg. One run tests reading files, GROUP BY, complex MERGE on composite keys, writing Iceberg, incremental builds on tables that keep growing, and how well each dbt adapter is implemented. Spark and Trino, which is obvious; DuckDB, Polars and LakeSail did it too. I hope next year more engines join. Real life is boring: DuckDB went from a dead runner at 100 files to 360 by staging through a view. Find your one thing by running your own workload.`);
+{
+  // No title: the screenshot is the slide.
+  const s = tagBuilds(pres.addSlide({ masterName: "SHOT", sectionTitle: "05 Real-life use case" }));
+  shot(s, "shot-workload", "workload", MX, 0.4, CW, 6.4);
+  s.addNotes(`From the dashboard's Real workload tab: one dbt project, incremental with MERGE, never reset. The source is ${Math.round(LANDED.gb)} GB of AEMO CSV files (measured ${LANDED.date}). Same dbt project, five engines, same catalog; Iceberg made that a config change. This is the real-life benchmark: dbt orchestrates the SQL, every model is written to Iceberg. One run tests reading files, GROUP BY, complex MERGE on composite keys, writing Iceberg, incremental builds on tables that keep growing, and how well each dbt adapter is implemented. Spark and Trino, which is obvious; DuckDB, Polars and LakeSail did it too. I hope next year more engines join. Real life is boring: DuckDB went from a dead runner at 100 files to 360 by staging through a view. Find your one thing by running your own workload.`);
+}
 // The Real workload tab's last run (docs/data/workload.json), per engine.
 const LEGS = JSON.parse(fs.readFileSync("c:/git/bench/docs/data/workload.json", "utf8")).legs;
 {
