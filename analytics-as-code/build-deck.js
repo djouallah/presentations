@@ -274,6 +274,29 @@ const divider = (k, line, notes, section) => {
   s.addNotes("Now the developer says: joining on a key that repeats is dumb. Everybody knows you aggregate first. Fine. Aggregate first: one row per product on each side. Nothing multiplies.\n\nNow, which join? An inner join: C and D are gone, 100 sold. A left join from sales: C is back, but D, in stock and never sold, is gone; stock says 12, not 20. Only a full join gets 150 and 20. Add a third table, say orders on the way, and it's a full join of a full join, with the keys coalesced.\n\nOr you go through the product dimension, and every measure is aggregated to it. That is what a semantic model does, for every chart and any mix of measures, without anybody having to think about it.");
 }
 
+// ---------- 16c3. the right SQL, and the AI that writes it ----------
+{
+  const s = slide("CONTENT");
+  s.addText("The right SQL. Can an AI write it?", { placeholder: "title" });
+  code(s,
+    "WITH s AS (SELECT product, SUM(units) AS sold\n" +
+    "           FROM sales GROUP BY product),\n" +
+    "     k AS (SELECT product, SUM(units) AS in_stock\n" +
+    "           FROM stock GROUP BY product)\n" +
+    "SELECT COALESCE(s.product, k.product) AS product,\n" +
+    "       sold, in_stock\n" +
+    "FROM s FULL JOIN k ON s.product = k.product;",
+    M, 1.5, 7.6, 2.55, 16);
+  s.addText("Aggregate each table, full join, coalesce the key. Forget the COALESCE and D comes back with no name.", { x: M, y: 4.25, w: 7.6, h: 0.9, fontSize: 16, color: C.text2, margin: 0, valign: "top", isTextBox: true, objectName: name() });
+  const line = (t, y, h, size, color) => s.addText(t, { x: 8.6, y, w: W - M - 8.6, h, fontSize: size, bold: true, color, margin: 0, valign: "top", isTextBox: true, objectName: name() });
+  at(1); line("Can an AI write this? Yes.", 1.5, 1.0, 26, C.text1);
+  at(2); line("Every time? No guarantee.", 2.6, 1.0, 26, C.text1);
+  at(3); line("A car whose brakes work 99% of the time", 3.7, 1.3, 26, C.accent3);
+  at(4); line("is probably a bad idea.", 4.75, 0.6, 26, C.accent3);
+  at(5); caption(s, "A semantic model compiles this the same way every time: the AI names the measures, the compiler writes the join.", { color: C.accent1, bold: true, fontSize: 16 });
+  s.addNotes("So here is the right SQL. Aggregate each table on its own, full join them, and coalesce the key. Forget the COALESCE and product D comes back with no name. Three things to get right, for one chart with two measures.\n\nCan an AI write this? Yes. Ask it nicely, give it the schema, it will write exactly this. Most of the time.\n\nEvery time? There is no guarantee. Same question tomorrow, a slightly different prompt, a third table, and you may get the inner join back.\n\nA car whose brakes work 99 per cent of the time is probably a bad idea.\n\n[Pause.]\n\nThat's the point of the semantic model. The AI names the measures. A compiler writes the join, the same way, every time.");
+}
+
 // ---------- 10. architecture: one model, many front ends ----------
 {
   const s = slide("CONTENT");
