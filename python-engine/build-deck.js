@@ -935,10 +935,23 @@ section("07 What I learned", "07", "What I learned");
 }
 
 pres.addSection({ title: "Close" });
+// Every engine that finishes the real-life dbt workload: the dashboard's Real workload tab
+// (docs/data/workload.json), every model built and no file left behind.
+const LEGS_DONE = (() => {
+  const legs = JSON.parse(fs.readFileSync("c:/git/bench/docs/data/workload.json", "utf8")).legs;
+  return Object.keys(legs).filter((e) => legs[e].status === "success" && legs[e].files_behind === 0 && legs[e].models_ok === legs[e].models)
+    .sort((a, b) => LABEL[a].localeCompare(LABEL[b], "en", { sensitivity: "base" }));
+})();
 {
   const s = pres.addSlide({ masterName: "PUNCHLINE", sectionTitle: "Close" });
-  s.addText("These engines work, and that’s the story.", { placeholder: "title" });
-  s.addNotes("These engines work, and that's the story. To make it work you need a whole ecosystem: Iceberg support, the catalog, a dbt adapter, spill to disk.");
+  s.addText(`My use case used to work with only 1 engine. Now we have ${LEGS_DONE.length}. That’s progress.`, { placeholder: "title" });
+  s.addNotes(`My use case used to work with only one engine. Now ${LEGS_DONE.length} finish it. That's progress. These engines work, and that's the story. To make it work you need a whole ecosystem: Iceberg support, the catalog, a dbt adapter, spill to disk.`);
+  // Emoji stand-ins for the logos, no names, centred under the line.
+  const MASCOT = { duckdb_iceberg: "🦆", pyspark_gluten_iceberg: "⭐", lakesail_iceberg: "⛵", polars_iceberg: "🐻‍❄️", trino_iceberg: "🐰" };
+  const x0 = (W - (LEGS_DONE.length * 1.4 - 0.2)) / 2;
+  LEGS_DONE.forEach((e, k) => {
+    s.addText(MASCOT[e] ?? LABEL[e], { isTextBox: true, margin: 0, x: x0 + k * 1.4, y: 5.55, w: 1.2, h: 0.85, fontSize: MASCOT[e] ? 44 : 16, bold: !MASCOT[e], color: C.background1, align: "center", valign: "top" });
+  });
 }
 {
   const s = pres.addSlide({ masterName: "TITLE", sectionTitle: "Close" });
@@ -947,18 +960,7 @@ pres.addSection({ title: "Close" });
   s.addShape(pres.shapes.ROUNDED_RECTANGLE, { objectName: "qr-frame", x: 9.55, y: 1.75, w: 3.2, h: 3.2, rectRadius: 0.15, fill: { color: C.background1 }, line: { type: "none" } });
   s.addImage({ objectName: "qr-github", path: SHOTS + "qr_github.png", x: 9.7, y: 1.9, w: 2.9, h: 2.9, altText: "QR code: github.com/djouallah/lakehouse_benchmark" });
   s.addText("Scan for the code: github.com/djouallah/lakehouse_benchmark", { isTextBox: true, margin: 0, x: 8.9, y: 5.1, w: 4.5, h: 0.7, fontSize: 14, color: C.accent3, align: "center" });
-  // Every engine that finishes the real-life dbt workload, by name: the dashboard's Real workload tab
-  // (docs/data/workload.json), every model built and no file left behind.
   s.addNotes("Questions?");
-  const legs = JSON.parse(fs.readFileSync("c:/git/bench/docs/data/workload.json", "utf8")).legs;
-  const done = Object.keys(legs).filter((e) => legs[e].status === "success" && legs[e].files_behind === 0 && legs[e].models_ok === legs[e].models)
-    .sort((a, b) => LABEL[a].localeCompare(LABEL[b], "en", { sensitivity: "base" }));
-  // Emoji stand-ins for the logos, no names.
-  const MASCOT = { duckdb_iceberg: "🦆", pyspark_gluten_iceberg: "⭐", lakesail_iceberg: "⛵", polars_iceberg: "🐻‍❄️", trino_iceberg: "🐰" };
-  done.forEach((e, k) => {
-    const x = 2.1 + k * 1.4;
-    s.addText(MASCOT[e] ?? LABEL[e], { isTextBox: true, margin: 0, x, y: 0.3, w: 1.2, h: 0.85, fontSize: MASCOT[e] ? 44 : 16, bold: !MASCOT[e], color: C.background1, align: "center", valign: "bottom" });
-  });
 }
 
 async function addBuilds(file) {
