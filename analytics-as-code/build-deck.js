@@ -258,30 +258,7 @@ const divider = (k, line, notes, section) => {
   s.addNotes("Nothing in this setup belongs to a vendor. Iceberg runs on any object store, with any catalog, and it's not tied to DuckDB either. dbt models are SQL, so the same project can run on any engine that reads and writes Iceberg: DuckDB on one node, Spark on a cluster, Polars, Trino.\n\nThe engine is a choice, like the storage.");
 }
 
-// ---------- 10d. still not happy (segue) ----------
-{
-  const s = slide("CONTENT");
-  s.addText("Still not fully happy", { placeholder: "title" });
-  at(1); s.addText("Every chart had its own SQL, and no single place said what a number means.", { x: M, y: 1.4, w: W - 2 * M, h: 0.5, fontSize: 20, color: C.text2, margin: 0, isTextBox: true, objectName: name() });
-  at(2); s.addText("What if I want both?", { x: M, y: 2.05, w: W - 2 * M, h: 0.8, fontSize: 36, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: name() });
-  const both = [
-    ["Enterprise BI", "the tools people already use at work: Power BI, Excel, a sign-in"],
-    ["A proper semantic model", "one definition of every number, for the public page and the internal one"],
-  ];
-  both.forEach(([t, sub], i) => {
-    const x = M + i * 6.2;
-    at(3 + i);
-    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 3.05, w: 5.9, h: 1.7, fill: { color: C.background2 }, line: { color: C.accent6, width: 0.75 }, rectRadius: 0.1, objectName: name() });
-    s.addText([{ text: t, options: { bold: true, fontSize: 24, color: C.text1, breakLine: true } }, { text: sub, options: { fontSize: 16, color: C.text2 } }],
-      { x: x + 0.3, y: 3.2, w: 5.3, h: 1.4, valign: "middle", margin: 0, isTextBox: true, objectName: name() });
-  });
-  at(5); s.addText("Fabric was an option. I couldn't afford it for a hobby.", { x: M, y: 5.25, w: W - 2 * M, h: 0.7, fontSize: 28, bold: true, color: C.accent1, margin: 0, isTextBox: true, objectName: name() });
-  s.addNotes("It worked, but I wasn't fully happy. Every chart had its own SQL, and no single place said what a number means. What if I want both? Enterprise BI, the tools people already use at work, Power BI, Excel, behind a sign-in; and a proper semantic model, one definition of every number, for the public page and the internal one.\n\nFabric was an option, but I couldn't afford a capacity for a hobby.");
-}
-
-{ divider(3, "Power BI, but not the same Power BI", "And then, back to where I started. August 2026: two new things in Fabric, apps and pay-as-you-go. Fabric had been there since 2023, but I only tried it when I could pay as I go. It is all fun until you use your own money.", "Back to where I started"); }
-
-// ---------- 9. one commit ----------
+// ---------- 9. one commit: the storage is a choice too ----------
 {
   const s = slide("CONTENT");
   s.addText("Changing storage vendor took one commit", { placeholder: "title" });
@@ -297,16 +274,51 @@ const divider = (k, line, notes, section) => {
     4.7, 1.7, 8.0, 2.5, 17);
   s.addText("profiles.yml: point dbt at the new catalog. The models, the SQL and the data format stay the same.", { x: 4.7, y: 4.4, w: 8.0, h: 0.8, fontSize: 16, color: C.text2, margin: 0, valign: "top", isTextBox: true, objectName: name() });
   at(3); caption(s, "Iceberg is the contract, not the vendor. That is the boring reason open formats matter.");
-  s.addNotes("Then two new things happened in Fabric: apps, so the same page could run inside Fabric behind a sign-in, as the internal tool; and pay-as-you-go, in August 2026. Fabric had been there since 2023, and I wish I had had it in 2019. It's all fun until you use your own money. So I moved the tables to OneLake.\n\nThat move was one commit. The models barely changed, because the table format was Iceberg, not a vendor's. That is the boring reason open formats matter.");
+  s.addNotes("And the storage is a choice too. In August 2026 I moved the tables to another catalog, OneLake.\n\nThat move was one commit. The models barely changed, because the table format was Iceberg, not a vendor's. That is the boring reason open formats matter.");
 }
 
-// ---------- 10. architecture ----------
+// ---------- 10d. still not happy (segue) ----------
 {
   const s = slide("CONTENT");
-  s.addText("Back to Power BI after 7 years", { placeholder: "title" });
-  fit(s, AS + "architecture_deck.png", 4806, 2056, M, 1.4, W - 2 * M, 5.0);
-  at(1); caption(s, "The core is the same. The storage is no longer tied to the engine, and the front end is written by AI too.");
-  s.addNotes("So yes, I'm back to Power BI after seven years. But it's different. The core is the same, but the storage is no longer tied to the engine, and the front end is written by AI too. What really matters is the semantic model.");
+  s.addText("Still not fully happy", { placeholder: "title" });
+  at(1); s.addText("Every chart had its own SQL, and no single place said what a number means.", { x: M, y: 1.4, w: W - 2 * M, h: 0.5, fontSize: 20, color: C.text2, margin: 0, isTextBox: true, objectName: name() });
+  at(2); s.addText("AI makes a dashboard a walk in the park. Every chart works.", { x: M, y: 2.4, w: W - 2 * M, h: 1.0, fontSize: 36, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: name() });
+  at(3); s.addText("Without a semantic model, it's anarchy.", { x: M, y: 3.7, w: W - 2 * M, h: 1.0, fontSize: 36, bold: true, color: C.accent1, margin: 0, isTextBox: true, objectName: name() });
+  at(4); s.addText("In 2019 I had one. Then I lost it.", { x: M, y: 5.0, w: W - 2 * M, h: 0.6, fontSize: 24, color: C.text2, margin: 0, isTextBox: true, objectName: name() });
+  s.addNotes("It worked, but I wasn't fully happy. Every chart had its own SQL, and no single place said what a number means.\n\nWith AI, generating a dashboard is a walk in the park, and every chart may well work. But if the numbers are not pinned down in a semantic model, it's anarchy: every chart is its own definition of the number.\n\nIn 2019 I had a semantic model. Then I lost it.");
+}
+
+{ divider(3, "The semantic model, not the BI tool", "And then, back to where I started. Not to the BI tool: to the semantic model I had in 2019.", "Back to where I started"); }
+
+// ---------- 10. architecture: one model, many front ends ----------
+{
+  const s = slide("CONTENT");
+  s.addText("Back to a semantic model after 7 years", { placeholder: "title" });
+  const box = (x, y, w, h, t, sub, hot = false) => {
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w, h, fill: { color: C.background2 }, line: { color: hot ? C.accent1 : C.accent6, width: hot ? 2 : 0.75 }, rectRadius: 0.1, objectName: name() });
+    s.addText([{ text: t, options: { bold: true, fontSize: hot ? 28 : 22, color: hot ? C.accent1 : C.text1, breakLine: true } }, { text: sub, options: { fontSize: 15, color: C.text2 } }],
+      { x: x + 0.25, y: y + 0.15, w: w - 0.5, h: h - 0.3, valign: "middle", margin: 0, isTextBox: true, objectName: name() });
+  };
+  const arrow = (x, y, w, h, flipV = false) => s.addShape(pres.shapes.LINE, { x, y, w, h, flipV, line: { color: C.accent4, width: 1.5, endArrowType: "triangle" }, objectName: name() });
+  const midY = 3.85;
+  box(M, midY - 0.65, 2.7, 1.3, "Iceberg tables", "dbt, every hour");
+  arrow(M + 2.7, midY, 0.7, 0);
+  box(4.0, midY - 0.9, 3.7, 1.8, "Semantic model", "one Ossie file: every measure, once", true);
+  const ends = [
+    ["Public page", "DuckDB in the browser"],
+    ["Behind a sign-in", "the same page, internal"],
+    ["A BI tool", "a Power BI report"],
+  ];
+  at(1);
+  ends.forEach(([t, sub], i) => {
+    const cy = midY + (i - 1) * 1.55;
+    if (cy < midY) arrow(7.7, cy, 0.9, midY - cy, true);
+    else if (cy > midY) arrow(7.7, midY, 0.9, cy - midY);
+    else arrow(7.7, midY, 0.9, 0);
+    box(8.6, cy - 0.6, W - M - 8.6, 1.2, t, sub);
+  });
+  at(2); caption(s, "One definition of every number, whatever draws the chart.");
+  s.addNotes("So yes, back to where I started after seven years. Not to a BI tool: to the semantic model. The tables are Iceberg, built by dbt every hour. One semantic model, one Ossie file, defines every measure once. Then anything can draw the chart: the public page with DuckDB in the browser, the same page behind a sign-in, or a Power BI report. They all ask the same model, so they all give the same number.");
 }
 
 // ---------- 14. 84 of 683 ----------
