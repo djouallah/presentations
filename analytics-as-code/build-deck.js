@@ -431,8 +431,8 @@ const divider = (k, line, notes, section) => {
     s.addText([{ text: h, options: { bold: true, fontSize: 24, color: C.text1, breakLine: true } }, { text: sub, options: { fontSize: 16, color: C.text2 } }],
       { x: M + 0.9, y, w: W - 2 * M - 0.9, h: 1.0, margin: 0, valign: "top", isTextBox: true, objectName: name() });
   });
-  at(items.length + 1); caption(s, "Apache Ossie: an open format for semantic models, backed by Snowflake, Databricks, Google and Microsoft.", { color: C.accent1, fontSize: 16 });
-  s.addNotes("Storage is already decoupled from compute. The semantic model will be decoupled from compute too, from the BI tool and from the warehouse. At least with BI tools, we can already use multiple warehouses: the BI tool translates the model into each one's SQL. And there is now an open format for it: Apache Ossie, backed by Snowflake, Databricks, Google and Microsoft. The semantic model in this repo is an Ossie file. The technology matters less and less. The primitives matter, cost and performance matter, and AI will do the rest.\n\nBut you still need to understand the tests. And you still need to know the business and what your users actually want, which is not obvious at all.");
+  at(items.length + 1); caption(s, "Apache Ossie: an open format for semantic models, backed by the major industry vendors.", { color: C.accent1, fontSize: 16 });
+  s.addNotes("Storage is already decoupled from compute. The semantic model will be decoupled from compute too, from the BI tool and from the warehouse. At least with BI tools, we can already use multiple warehouses: the BI tool translates the model into each one's SQL. And there is now an open format for it: Apache Ossie, backed by the major industry vendors. The semantic model in this repo is an Ossie file. The technology matters less and less. The primitives matter, cost and performance matter, and AI will do the rest.\n\nBut you still need to understand the tests. And you still need to know the business and what your users actually want, which is not obvious at all.");
 }
 
 // ---------- 19. the end ----------
