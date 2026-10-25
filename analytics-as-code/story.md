@@ -104,20 +104,21 @@ What really matters is the semantic model.
 ## Why not just write the SQL?
 
 Every developer will ask: why do I need a semantic model? One chart, one query, how hard
-can it be? Take the smallest example there is: five sales, three returns, three stores. The
-chart is sales and returns by store, one join on the store.
+can it be? Take the smallest example there is: five sales, four returns, four stores. Store C
+sold and had no return; store D had a return and no sale. The chart is sales and returns by
+store, one join on the store.
 
 The join pairs every sale with every return of the same store. Store A has three sales and
 two returns, so six rows: every sale twice, every return three times. Store B has one of
-each: right, by luck. Store C has no return, so the join drops it. Store A shows 120 sales
-instead of 60; C is missing; the total is 160 instead of 150. B is right, so the spot check
-passes, and nobody blinks at 7%. That's fan-out, and it doesn't throw an error.
+each: right, by luck. C and D drop out of the join. Store A shows 120 sales instead of 60;
+C and D are missing; sales say 160 instead of 150. B is right, so the spot check passes,
+and nobody blinks at 7%. That's fan-out, and it doesn't throw an error.
 
-The fix is old: aggregate each table first, one row per store, then join. A semantic model
-writes that for every chart and any mix of measures; you write SUM(sales) once. On the real
-dashboard, one KPI tile, the change against the period before, is 141 characters of DAX and
-98 SELECTs of SQL. Nobody writes that by hand for every chart, and nobody reviews it. I
-review the measure.
+"Joining on a key that repeats is dumb, aggregate first." Fine: one row per store on each
+side, nothing multiplies. Then which join? An inner join loses C and D. A left join from
+sales loses D's return: 12 instead of 20. Only a full join is right. Aggregating first
+stops the fan-out; the join still decides which stores exist. A semantic model goes through
+the store dimension, every store once, for every chart, and nobody has to think about it.
 
 ## One number, many definitions
 
@@ -129,13 +130,6 @@ chart by chart, disagreed with the first on 84 questions out of 683.
 And if you ask an AI for generation by fuel, it gives you SQL fast and confidently. It
 counts a charging battery as negative generation. On a sunny afternoon in New South Wales
 that's off by hundreds of megawatts. I'll show you in a minute.
-
-The obvious fix is to give the AI the semantic model and let it write the SQL. I'm not
-convinced. Back to the toy: with the model in the prompt, three queries all run. A join
-gives 160, a left join (someone noticed C was missing) gives 210, aggregate first gives 150.
-The AI knows the definitions, but it still has to get every join right, on every question. Most of the time it will; most of the time is
-the problem. The model as context is a hint, not a guarantee. Reading the model isn't the
-same as obeying it.
 
 ## The semantic model is the harness
 
