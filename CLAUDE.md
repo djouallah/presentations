@@ -14,7 +14,8 @@ Both decks are generated, never edited by hand: change the folder's `build-deck.
 ## analytics-as-code/: Analytics as Code
 
 - Source repo: https://github.com/djouallah/analytics-as-code (local clone `C:\git\analytics-as-code`), live demo https://nemtracker.github.io/.
-- Build: `node build-deck.js`, then `./animate.ps1 -Deck <full path to analytics-as-code.pptx>` (PowerPoint COM adds the click animations from shape names). Images the deck uses live in `img/deck/` and `img/history/`.
+- Build: `node build-deck.js`, then `./animate.ps1 -Deck <full path to analytics-as-code.pptx>` (PowerPoint COM adds the click animations from shape names). Images the deck uses live in `img/deck/`, `img/history/` and `img/how/`.
+- `capture-how.py` screenshots the live https://nemtracker.github.io/how/ page, card by card, into `img/how/` (the "how it works" slides). Rerun it before the talk.
 - Deck is `analytics-as-code.pptx`; `talk.md` is the outline, `story.md` the narrative, `abstract.txt` the submitted abstract.
 - Only the 1080p export of the demo video is kept; the 360 MB master was deliberately deleted. Keep files under GitHub's 100 MB limit.
 

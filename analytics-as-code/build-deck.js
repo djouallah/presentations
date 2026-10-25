@@ -444,33 +444,27 @@ const divider = (k, line, notes, section) => {
   s.addNotes("So the AI doesn't write the SQL any more. It names the measure.\n\nThe semantic model is one text file. It says what generation means, which fuels are renewable, which units are batteries. Power BI runs it. The same file runs in your browser, compiled to SQL for DuckDB. A chart can only pick fields, filters and measures. No arithmetic, no SQL.\n\nThe business knowledge lives in the model, not in the AI. And because it's text, I don't review 683 queries. I review one file.");
 }
 
-// ---------- 16b. how it works ----------
-{
-  const s = slide("CONTENT");
-  s.addText("How it works", { placeholder: "title" });
-  s.addText("What happens when you click a visual. The same steps in every BI tool; here each one runs in your browser.", { x: M, y: 1.35, w: W - 2 * M, h: 0.5, fontSize: 18, color: C.text2, margin: 0, isTextBox: true, objectName: name() });
-  const steps = [
-    ["Visual query", "the fields and filters of a click"],
-    ["Semantic model", "the measures it names"],
-    ["Query language", "written as DAX"],
-    ["Compile to SQL", "the BI tool translates DAX to SQL"],
-    ["Catalog", "where the tables are"],
-    ["Scan & aggregate", "DuckDB in the browser"],
-    ["Visual", "the chart draws the rows"],
-  ];
-  const gap = 0.18, bw = (W - 2 * M - gap * (steps.length - 1)) / steps.length, y = 2.6, bh = 2.2;
-  steps.forEach(([t, sub], i) => {
-    const x = M + i * (bw + gap);
-    const hi = i === 1;
-    at(i + 1);
-    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w: bw, h: bh, fill: { color: hi ? C.accent1 : C.background2 }, line: { color: hi ? C.accent1 : C.accent6, width: 0.75 }, rectRadius: 0.1, objectName: name() });
-    s.addText(String(i + 1), { x: x + 0.15, y: y + 0.15, w: bw - 0.3, h: 0.5, fontSize: 24, bold: true, color: hi ? C.background1 : C.accent1, margin: 0, isTextBox: true, objectName: name() });
-    s.addText([{ text: t, options: { bold: true, breakLine: true } }, { text: sub, options: { fontSize: 13, color: hi ? C.background1 : C.text2 } }],
-      { x: x + 0.15, y: y + 0.75, w: bw - 0.3, h: bh - 0.9, fontSize: 16, color: hi ? C.background1 : C.text1, valign: "top", margin: 0, isTextBox: true, objectName: name() });
-  });
-  at(steps.length + 1); caption(s, "LIVE DEMO: nemtracker.github.io/how", { color: C.accent1, bold: true, fontSize: 18 });
-  s.addNotes("[Demo: nemtracker.github.io/how. Pick a region on the slicer, then Next through the cards: the visual query, the measures it names in the semantic model, the DAX, the SQL it compiles to, and the plan that runs in the browser. On the Compile to SQL card, open 'let an AI write the SQL': the battery mistake, live. Click through the seven cards first, then switch to the browser.]\n\nEvery BI tool answers a click with these steps. The names change from tool to tool; what really differs is performance and complexity. Here every step runs in your browser, and the model in step 2 is the same file Power BI runs.");
-}
+// ---------- 16b. how it works: the /how/ page, card by card ----------
+// Screenshots of nemtracker.github.io/how/ (capture-how.py), each card followed by the card it opens.
+// Full-bleed, so moving to the next slide looks like pressing Next on the page.
+const HOW = "C:/git/presentations/analytics-as-code/img/how/";
+[
+  ["step1", "[Live: nemtracker.github.io/how. These slides are the same page, captured, in case the network is down.]\n\nWhat happens when you click a visual. Every BI tool answers a click with these steps; the names change from tool to tool, what really differs is performance and complexity. Here every step runs in your browser.\n\nStep 1, the visual query. I pick a region on the slicer. The visual sends fields and filters: which column, which measures, which filters. No SQL, no formula."],
+  ["other", "Some front ends skip the semantic model: each visual holds its own SQL. The same pick, fourteen lines of names, against the SQL it takes to get the same rows. Every join and every rule of the model, written into this visual, and the next one, and the next. That's how we got 84 of 683."],
+  ["step2", "Step 2, the semantic model. The query names three measures, and the model says what they are. Generation MW is SUMX of MAX of mw and zero: a battery charging is not generation."],
+  ["model", "The whole model: fifteen tables, twenty-two relationships, sixty-three measures. One Apache Ossie file. The same file Power BI runs in Direct Lake."],
+  ["step3", "Step 3, the query language. The visual query is written as DAX, checked against the model. DAX here and in Power BI, VizQL in Tableau, an Explore in Looker."],
+  ["step4", "Step 4, compile to SQL. The DAX becomes one SQL query for DuckDB, in a couple of milliseconds. Aggregate first, then join, and the total read off the same aggregate."],
+  ["ai", "Or let an AI write the SQL. This is scripted, no AI is called, but it is the SQL you typically get when you ask for generation by fuel. It runs, it looks right, and it nets a charging battery against generation. Off by a few megawatts, or a few hundred on a sunny afternoon. Wrong is wrong. The rule lives once, in the model, and the compiler applies it to every query."],
+  ["step5", "Step 5, the catalog: where each table the plan reads is stored. Here, views over the files the page downloaded."],
+  ["step6", "Step 6, scan and aggregate. DuckDB in the browser reads only the columns it needs, filters, groups. A hundred thousand rows read, a handful kept."],
+  ["plan", "The query plan, as the engine ran it, with the time and rows of each step. EXPLAIN ANALYZE, in your browser."],
+  ["step7", "Step 7, the visual draws the rows that came back. Tens of milliseconds, end to end. Pick another region and it runs again."],
+].forEach(([shot, notes], i) => {
+  const s = slide("BLANK");
+  s.addImage({ path: HOW + shot + ".png", x: 0, y: 0, w: W, h: H, objectName: name() });
+  s.addNotes(notes);
+});
 
 { divider(4, "What I learned, and what I think comes next", "So where are we going?", "Where we're going"); }
 
