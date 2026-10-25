@@ -762,12 +762,14 @@ section("03 Engines", "03", "The engines", `${TRIED.total} engines tried, one ca
   `Every engine I tried counts, including the ones that didn't make it. ${TRIED.inBench} are in the bench: nine run the SQL suites, and Daft and pandas run the ETL. ${TRIED.notAdded.length} were tried and not added: ${TRIED.notAdded.join(", ")}. Each one is on the Engines tab with the reason.`);
 {
   const s = content("03 Engines", "Disclosure: what this runs on",
-    "Free GitHub runners, 4 cores / 16 GB. OneLake Catalog, because I get it free through my job.");
+    "Free GitHub runners, 4 cores / 16 GB, and about 105 GB of free disk once the preinstalled toolchains are deleted: that's where every engine spills. OneLake Catalog, because I get it free through my job.");
   at(1);
   card(s, "runner-card", MX, 1.7, 5.9, 3.4);
   T(s, "Compute", { x: MX + 0.4, y: 1.95, w: 5.1, h: 0.4, fontSize: 18, bold: true, color: C.accent1 });
   T(s, "Free GitHub runners", { x: MX + 0.4, y: 2.45, w: 5.1, h: 0.7, fontSize: 30, bold: true, color: C.text1 });
   T(s, "4 cores · 16 GB", { x: MX + 0.4, y: 3.3, w: 5.1, h: 0.9, fontSize: 44, bold: true, color: C.accent1 });
+  // bench workflows, "Free disk" step: ~105 GB free on the runner's volume, where every engine spills (/mnt).
+  T(s, "~105 GB free disk", { x: MX + 0.4, y: 4.2, w: 5.1, h: 0.7, fontSize: 32, bold: true, color: C.accent1 });
   at(2);
   card(s, "catalog-card", MX + 6.3, 1.7, 5.8, 3.4);
   T(s, "Catalog", { x: MX + 6.7, y: 1.95, w: 5.0, h: 0.4, fontSize: 18, bold: true, color: C.accent1 });
