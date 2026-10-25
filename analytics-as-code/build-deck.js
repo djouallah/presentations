@@ -293,7 +293,7 @@ const divider = (k, line, notes, section) => {
 // ---------- 10. architecture: one model, many front ends ----------
 {
   const s = slide("CONTENT");
-  s.addText("Back to a semantic model after 7 years", { placeholder: "title" });
+  s.addText("One model, many front ends", { placeholder: "title" });
   const box = (x, y, w, h, t, sub, hot = false) => {
     s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w, h, fill: { color: C.background2 }, line: { color: hot ? C.accent1 : C.accent6, width: hot ? 2 : 0.75 }, rectRadius: 0.1, objectName: name() });
     s.addText([{ text: t, options: { bold: true, fontSize: hot ? 28 : 22, color: hot ? C.accent1 : C.text1, breakLine: true } }, { text: sub, options: { fontSize: 15, color: C.text2 } }],
