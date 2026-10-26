@@ -475,8 +475,8 @@ function duoEls(t) {
 }
 
 // The benchmark bars (docs/index.html L512-753), from the dashboard's own data files and its one aggregation: each
-// engine's mean over its last 3 complete runs.
-const RECENT_RUNS = 3;
+// engine's mean over its last 2 complete runs.
+const RECENT_RUNS = 2;
 const SUITES = {
   etl: { id: "etl", csv: "etl_results.csv", caption: (n) => `Read ${n.toLocaleString("en")} CSVs and write one Iceberg table.` },
   tpch: { id: "tpch", csv: "tpch_results.csv", queries: 22, sfs: [10, 30, 100, 300],
