@@ -80,6 +80,8 @@ pres.defineSlideMaster({
     { placeholder: { options: { name: "title", type: "title", align: "center", x: 0.8, y: 2.0, w: 11.7, h: 3.5, fontSize: 60, bold: true, color: C.background1, valign: "middle", margin: 0 }, text: "" } },
   ],
 });
+// A picture alone on the light background: no title, footer or slide number.
+pres.defineSlideMaster({ title: "BLANK", background: { color: H.lt1 }, objects: [] });
 // A content slide whose title is a statement of up to three lines.
 pres.defineSlideMaster({
   title: "STATEMENT",
@@ -777,6 +779,9 @@ pres.addSection({ title: "01 What changed since 2025" });
 // ---------- 2. Iceberg ----------
 section("02 Iceberg", "02", "Iceberg", "All engines are equal, as long as they speak the same spec.",
   "Not long ago your data lived inside an engine. Changing engine meant migrating.");
+stepped("02 Iceberg", "How we got here",
+  "From the dashboard's Lakehouse tab, Timeline. 1990s the warehouse: storage and compute in one product, changing engine is a migration. 2006 Hadoop: open files, but storage and compute on the same boxes, because in 2006 the network was the bottleneck. 2010s the cloud warehouse: elastic compute, but the tables live inside one vendor. 2017 open table formats: Iceberg started at Netflix; writing a table still needed a Java cluster. Now: a REST catalog, and a library in a Python process writes the same tables as a cluster.",
+  [-1, 0, 1, 2, 3, 4], timelineEls, { x: MX, y: 1.45, s: 0.01, f: 1 });
 {
   // The analogy: US railroads before and after the 1886 gauge change. The South's 5 ft track gives way to the
   // North's gauge on click 2, and the gap between them closes. The gauges are drawn wider apart than to scale.
@@ -810,12 +815,7 @@ section("02 Iceberg", "02", "Iceberg", "All engines are equal, as long as they s
   T(s, "31 May – 1 June 1886: the South moved one rail on more than 11,000 miles of track, in 36 hours.", { x: MX, y: 4.3, w: CW, h: 0.55, fontSize: 20, color: C.text1 });
   at(3);
   T(s, "The trains were fine. The track wasn’t shared.", { x: MX, y: 5.0, w: CW, h: 0.55, fontSize: 22, bold: true, color: C.text1 });
-  at(4);
-  T(s, "Iceberg is the gauge: any engine runs on any table.", { x: MX, y: 5.75, w: CW, h: 0.65, fontSize: 28, bold: true, color: C.accent2 });
 }
-stepped("02 Iceberg", "How we got here",
-  "From the dashboard's Lakehouse tab, Timeline. 1990s the warehouse: storage and compute in one product, changing engine is a migration. 2006 Hadoop: open files, but storage and compute on the same boxes, because in 2006 the network was the bottleneck. 2010s the cloud warehouse: elastic compute, but the tables live inside one vendor. 2017 open table formats: Iceberg started at Netflix; writing a table still needed a Java cluster. Now: a REST catalog, and a library in a Python process writes the same tables as a cluster.",
-  [-1, 0, 1, 2, 3, 4], timelineEls, { x: MX, y: 1.45, s: 0.01, f: 1 });
 shotSlide("02 Iceberg", "The open lakehouse", "overview", null,
   "From the dashboard's Overview. Files in an object store, the state in a catalog, compute in any engine, and none of them owns the data. The job moves from engine to engine; every one commits to the same catalog. Small projects now get treated the same as big commercial and veteran open-source ones.");
 stepped("02 Iceberg", "The catalog is the referee",
@@ -945,56 +945,8 @@ const LANDED = (() => {
   const m = fs.readFileSync("c:/git/bench/docs/index.html", "utf8").match(/const LANDED = \{ gb: ([\d.]+), date: "([^"]+)"/);
   return { gb: +m[1], date: m[2] };
 })();
-// The Real workload tab's last run (docs/data/workload.json): the dbt project's DAG, and per engine its leg.
-const WORKLOAD = JSON.parse(fs.readFileSync("c:/git/bench/docs/data/workload.json", "utf8"));
-const LEGS = WORKLOAD.legs;
-// The tab's DAG (dagLayout and the DAG SVG, docs/index.html L1074-1138): a column per depth, the models of a column
-// stacked in name order and centred. Wider nodes than the site's, for the bigger text. Step c shows columns 0..c;
-// the step after the last column fills a dot per engine that built the model.
-const DAG_ORDER = ["pyspark_gluten_iceberg", "trino_iceberg", "duckdb_iceberg", "polars_iceberg", "lakesail_iceberg"];
-function dagEls(step) {
-  const dag = WORKLOAD.dag, depth = {}, d = (n) => depth[n] ??= dag[n].parents.length ? 1 + Math.max(...dag[n].parents.map(d)) : 0;
-  const names = Object.keys(dag).sort();
-  names.forEach(d);
-  const cols = Math.max(...Object.values(depth)) + 1, byCol = Array.from({ length: cols }, (_, c) => names.filter((n) => depth[n] === c));
-  const W = 1100, NW = 300, NH = 72, GAP = 18, H = Math.max(...byCol.map((c) => c.length)) * (NH + GAP) - GAP, pos = {};
-  byCol.forEach((col, c) => {
-    const top = (H - (col.length * (NH + GAP) - GAP)) / 2;
-    col.forEach((n, i) => { pos[n] = { x: cols > 1 ? c * (W - NW) / (cols - 1) : 0, y: top + i * (NH + GAP) }; });
-  });
-  const engines = Object.keys(LEGS).sort((a, b) => DAG_ORDER.indexOf(a) - DAG_ORDER.indexOf(b));
-  const rowsOf = (n) => { const v = engines.map((e) => LEGS[e].model_rows?.[n]).filter((x) => x != null); return v.length ? Math.max(...v) : null; };
-  const compact = (v) => v >= 1e6 ? `${(v / 1e6).toFixed(1)}M` : v >= 1e4 ? `${Math.round(v / 1e3)}k` : v.toLocaleString("en");
-  const els = [];
-  for (const n of names) {
-    if (depth[n] > step) continue;
-    const { x, y } = pos[n], m = dag[n], r = rowsOf(n);
-    for (const p of m.parents) {  // the edge into a model draws itself as the model lands
-      const a = pos[p], x1 = a.x + NW, y1 = a.y + NH / 2, x2 = x, y2 = y + NH / 2, k = (x2 - x1) / 2;
-      const o = { color: mix(D.ink3, D.bg, 0.8), lw: 1.5, dash: "dash", fx: "wipe", z: 0 };
-      els.push(y1 === y2 ? Ln(x1, y1, x2, y2, o) : { type: "curve", x1, y1, cx1: x1 + k, cy1: y1, cx2: x2 - k, cy2: y2, x2, y2, ...o });
-    }
-    els.push(R(x, y, NW, NH, { r: 10, fill: D.raised, line: D.grid, lw: 1.5, z: 1, delay: 300 }));
-    els.push(Tx(x + 12, y + 28, n, { px: 15, bold: true, color: D.ink, w: NW - 24, delay: 300 }));
-    if (r != null) els.push(Tx(x + NW - 12, y + 28, `${compact(r)} rows`, { px: 13, bold: true, color: D.ink2, align: "r", w: 150, delay: 300 }));
-    els.push(Tx(x + 12, y + 58, m.materialized === "source" ? `source · ${Math.round(LANDED.gb)} GB of CSV` : m.materialized, { px: 12, color: D.ink3, w: NW - 24, delay: 300 }));
-    if (step >= cols && m.materialized !== "source") engines.forEach((e, i) => {
-      const built = LEGS[e].model_rows?.[n] != null, c = ENGINE_COLOR[e] || D.ink3;
-      els.push(Ov(x + NW - 22 - (engines.length - 1 - i) * 16, y + 47, 11, 11, { fill: built ? c : null, line: c, lw: 1.5, z: 2, delay: i * 120 }));
-    });
-  }
-  const models = names.filter((n) => dag[n].materialized !== "source").length;
-  els.push(CAP(step >= cols
-    ? `One dbt project, ${models} models, incremental MERGE: a dot per engine that built it. ${engines.length} engines, the same tables.`
-    : `One dbt project, ${models} models, incremental MERGE.`));
-  return { els, cols, W, H };
-}
-{
-  const { cols, W: dw, H: dh } = dagEls(0);
-  stepped("05 Real-life use case", "The dbt project",
-    `The real workload is one dbt project, the DAG as dbt itself publishes it. One source: every AEMO daily file landed, ${Math.round(LANDED.gb)} GB of CSV. Then five incremental models: the price and SCADA facts, their today views, and the unit dimension, every one a MERGE on its key into an Iceberg table that only grows. Then fct_summary on top of them. Last click: a dot per engine, filled when that engine built the model. ${Object.keys(LEGS).length} engines, the same models, the same catalog.`,
-    [...Array(cols + 1).keys()], (k) => dagEls(k).els, fit(dw, dh, 1.55, { x: MX, y: 1.5, w: CW, h: 4.35 }));
-}
+// The Real workload tab's last run (docs/data/workload.json), per engine.
+const LEGS = JSON.parse(fs.readFileSync("c:/git/bench/docs/data/workload.json", "utf8")).legs;
 {
   // No title: the screenshot is the slide.
   const s = tagBuilds(pres.addSlide({ masterName: "SHOT", sectionTitle: "05 Real-life use case" }));
@@ -1155,6 +1107,11 @@ const LEGS_DONE = (() => {
   LEGS_DONE.forEach((e, k) => {
     s.addText(MASCOT[e] ?? LABEL[e], { isTextBox: true, margin: 0, x: x0 + k * 1.4, y: 5.55, w: 1.2, h: 0.85, fontSize: MASCOT[e] ? 44 : 16, bold: !MASCOT[e], color: C.background1, align: "center", valign: "top" });
   });
+}
+{
+  // The bell-curve meme: SQL at both ends, the DataFrame API in the middle. No notes.
+  const s = pres.addSlide({ masterName: "BLANK", sectionTitle: "Close" });
+  s.addImage({ path: SHOTS + "meme_sql.jpeg", x: 2.19, y: 0.44, w: 9.01, h: 6.66, altText: "Bell-curve meme: SQL at both ends, the DataFrame API in the middle" });
 }
 {
   const s = pres.addSlide({ masterName: "TITLE", sectionTitle: "Close" });
