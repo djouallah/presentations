@@ -6,6 +6,10 @@ Opener: **Every Python data engine looks impressive when you throw a 64-core mac
 
 Agenda slide after the title: the seven section titles, nothing else.
 
+About me, between the title and the agenda: Microsoft, Fabric CAT team, Brisbane; ex construction planner; personal project, my own opinions; QR to my LinkedIn.
+
+Scope, after the agenda: a Python engine does many jobs (read and serve, explore, complex calculations, streaming, embedded). This talk is about one: data engineering. Read raw files, transform, MERGE, write tables, every day, unattended.
+
 ## 1. What changed since 2025 (5 min)
 One slide, three themes, one per click. I gave this talk last year (Life Beyond Pandas, 2 cores, Delta) and this is what changed.
 - **SQL.** Polars SQL went from a side feature to all 99 TPC-DS-like queries: the fastest engine here at SF100 (time from the dashboard bars). On 2.0.0-rc.2 it killed the runner at TPC-H-like SF30; optimizer work Aug–Oct 2026 (join reordering #28985/#29038, dynamic predicates #29312, bloom filters #29423) changed that. Main build.
@@ -16,6 +20,7 @@ One slide, three themes, one per click. I gave this talk last year (Life Beyond 
 ## 2. Iceberg (4 min)
 - All engines are equal, as long as they speak the same spec.
 - Not long ago your data lived inside an engine. Changing engine meant migrating.
+- **Break of gauge** (the analogy): before 1886 the US North ran on 4 ft 8½ in, most of the South on 5 ft; freight was unloaded and reloaded, or cars put on new wheels. On 31 May – 1 June 1886 the South moved one rail on more than 11,000 miles of track in 36 hours. The trains were fine; the track wasn't shared. Iceberg is the gauge: any engine runs on any table.
 - Iceberg + a REST catalog changed that: tables live in the open, and any engine can read and write them.
 - which is awesome as many small projects will be treated the same as very big commerical or vetetran open source porjetcs
 - Show: Timeline, Overview, then Concurrency: one commit refused and retried, the catalog is the referee (dashboard, Lakehouse tab).
@@ -27,6 +32,7 @@ One slide, three themes, one per click. I gave this talk last year (Life Beyond 
 - Daft and pandas run the ETL only. Tried, not added: Apache Doris, Firebolt Core, DataFusion Comet, DataFusion, pg_lake, each with its reason on the Engines tab.
 - All of them talk to the same catalog. None of them needed anything special.
 - Speed doesn't matter if the engine can't do your operation.
+- **Iceberg support, counted** (capability.json, before the grid): one bar per engine, operations done out of 41. It moved a lot: Polars 2.1.0 did 6 on 25 Oct, Polars main 28 on 3 Nov; StarRocks joined the grid at 36.
 - The Iceberg grid. The good news first: create, append, file pruning, time travel and concurrent appends work almost everywhere. The catalog is the referee (section 1), and it works.
 - Then the differences: who does MERGE, DELETE, partition evolution, branches. Pick on this, not on speed.
 - Side note: Spark has the best fault tolerance and the widest coverage.
@@ -50,6 +56,8 @@ One slide, three themes, one per click. I gave this talk last year (Life Beyond 
 - The standard benchmarks look fine, but they don't run my actual workload.
 - **The real workload:** same dbt project, five engines, same catalog. Iceberg made that a config change.
   - The data: 185 GB of AEMO CSV files (measured 2026-10-22), the source node on the dashboard.
+  - **The dbt project**, before the screenshot: the DAG drawn natively, a column per click (source, five incremental models, fct_summary), then a dot per engine that built each model.
+  - **Same code, two engines**, after the screenshot: LakeSail (Rust, DataFusion, Spark Connect) and Spark + Gluten/Velox (JVM + C++) share no code, but their profiles.yml targets are the same lines and they run the exact same `models/aemo/spark/` files into the same Iceberg tables. Takeaway: **dbt + Iceberg is a new way to do data engineering. The code and the tables stay; the engine is a target in profiles.yml.**
   - This is the real-life benchmark: dbt orchestrates the SQL, every model is written to Iceberg.
   - One run tests a lot at once: reading files, GROUP BY, complex MERGE on composite keys, writing Iceberg, incremental builds on tables that keep growing, and how well each dbt adapter is implemented.
   - Today five engines do it. Spark and Trino, which is obvious. DuckDB, Polars and LakeSail did it too. I hope next year more engines join.

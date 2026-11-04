@@ -687,6 +687,20 @@ pres.addSection({ title: "Opening" });
 }
 
 {
+  // The QR is shots/qr_linkedin.png, made once with segno and checked by decoding it with OpenCV.
+  const s = content("Opening", "About me",
+    "Mimoune Djouallah. I work for Microsoft, in the Fabric CAT team, from Brisbane. Before data, I was a construction planner. This is a personal project, and everything here is my own opinion. The QR code is my LinkedIn.");
+  T(s, "Mimoune Djouallah", { x: MX, y: 1.9, w: 8.2, h: 0.9, fontSize: 44, bold: true, color: C.text1 });
+  T(s, "Microsoft · Fabric CAT team", { x: MX, y: 2.95, w: 8.2, h: 0.6, fontSize: 28, color: C.accent1 });
+  T(s, "Brisbane, Australia", { x: MX, y: 3.6, w: 8.2, h: 0.5, fontSize: 22, color: C.text2 });
+  T(s, "Ex construction planner", { x: MX, y: 4.4, w: 8.2, h: 0.6, fontSize: 28, bold: true, color: C.accent2 });
+  T(s, "A personal project. My own opinions.", { x: MX, y: 5.7, w: 8.2, h: 0.5, fontSize: 18, italic: true, color: C.text2 });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { objectName: "qr-frame", x: 9.55, y: 1.75, w: 3.2, h: 3.2, rectRadius: 0.15, fill: { color: "FFFFFF" }, line: { color: H.accent4, width: 1 } });
+  s.addImage({ objectName: "qr-linkedin", path: SHOTS + "qr_linkedin.png", x: 9.7, y: 1.9, w: 2.9, h: 2.9, altText: "QR code: linkedin.com/in/mimounedjouallah" });
+  T(s, "linkedin.com/in/mimounedjouallah", { x: 8.9, y: 5.1, w: 4.5, h: 0.5, fontSize: 14, color: C.accent1, align: "center" });
+}
+
+{
   // Just the section titles.
   const s = content("Opening", "Agenda");
   const items = ["What changed since 2025", "Iceberg", "The engines", "What does “fast” mean?", "Real-life use case", "What I learned"];
@@ -694,6 +708,29 @@ pres.addSection({ title: "Opening" });
     { text: String(k + 1).padStart(2, "0") + "   ", options: { bold: true, color: C.accent1 } },
     { text: t, options: { color: C.text1, breakLine: k < items.length - 1 } },
   ]), { x: MX, y: 1.5, w: CW, h: 5.2, fontSize: 26, valign: "top", paraSpaceAfter: 8 });
+}
+
+{
+  // The scope: what a Python engine gets used for, and the one job this talk measures.
+  const s = content("Opening", "One job out of many",
+    "A Python engine does a lot of jobs: serving dashboards, exploring in a notebook, complex calculations for science or ML, streaming, running inside an app. All valid, and not this talk. This talk is about one job: data engineering. Read raw files, transform them, MERGE into tables that keep growing, write Iceberg, every day, with nobody watching. So when I say an engine works, I mean it works for that.");
+  const gap = 0.3, cw = (CW - 2 * gap) / 3, ch = 1.9, cards = [
+    ["Read and serve", "Dashboards and BI queries on tables that already exist."],
+    ["Explore", "Ad-hoc questions in a notebook."],
+    ["Complex calculations", "Science, simulations, ML features."],
+    ["Streaming", "Events in, results out, all the time."],
+    ["Embedded", "An engine inside an app or a browser."],
+    ["Data engineering", "Read raw files, transform, MERGE, write tables. Every day, unattended."],
+  ];
+  cards.forEach(([head, body], k) => {
+    const x = MX + (k % 3) * (cw + gap), y = 1.5 + Math.floor(k / 3) * (ch + 0.25), de = k === cards.length - 1;
+    if (de) at(1);
+    card(s, "use-" + k, x, y, cw, ch, de ? C.text1 : C.background2);
+    T(s, head, { x: x + 0.35, y: y + 0.25, w: cw - 0.7, h: 0.45, fontSize: 20, bold: true, color: de ? C.accent6 : C.text2 });
+    T(s, body, { x: x + 0.35, y: y + 0.8, w: cw - 0.7, h: 0.95, fontSize: 17, color: de ? C.background1 : C.text2, valign: "top" });
+  });
+  at(2);
+  T(s, "This talk: data engineering only.", { x: MX, y: 5.95, w: CW, h: 0.6, fontSize: 26, bold: true, color: C.accent2 });
 }
 
 // ---------- 1. What changed since 2025 ----------
@@ -740,6 +777,42 @@ pres.addSection({ title: "01 What changed since 2025" });
 // ---------- 2. Iceberg ----------
 section("02 Iceberg", "02", "Iceberg", "All engines are equal, as long as they speak the same spec.",
   "Not long ago your data lived inside an engine. Changing engine meant migrating.");
+{
+  // The analogy: US railroads before and after the 1886 gauge change. The South's 5 ft track gives way to the
+  // North's gauge on click 2, and the gap between them closes. The gauges are drawn wider apart than to scale.
+  const s = content("02 Iceberg", "Break of gauge",
+    "An analogy. Before 1886, American railroads ran on two track widths: the North on 4 feet 8 and a half inches, the standard, most of the South on 5 feet. A train could not cross. At every meeting point, freight was unloaded and reloaded by hand, or each car was jacked up and put on new wheels. The trains were fine; the track wasn't shared. Then, on 31 May and 1 June 1886, the South changed gauge: crews moved one rail about three inches, to 4 feet 9 inches, close enough to the standard, on more than 11,000 miles of track, in about 36 hours. From then on, any train ran on any track. Iceberg is the gauge. Before, your data lived inside an engine, and changing engine meant migrating: unloading and reloading. With Iceberg and a REST catalog, any engine runs on any table.");
+  const mid = 2.45, rail = 0.07, north = 0.4, south = 0.55, breakL = 6.0, breakR = 7.3, R1 = W - MX;
+  const rect = (x, y, w, h, color) => s.addShape(pres.shapes.RECTANGLE, { x, y, w, h, fill: { color }, line: { type: "none" } });
+  const ties = (x0, x1) => { for (let x = x0 + 0.1; x < x1 - 0.1; x += 0.45) rect(x, mid - 0.72, 0.13, 1.44, "A68A72"); };
+  const rails = (x0, x1, g) => [-g, g].forEach((d) => rect(x0, mid + d - rail / 2, x1 - x0, rail, H.dk2));
+  // TAG by hand: shown from click `enter`, hidden on click `exit`. The stills deck keeps only the end state.
+  const tagged = (enter, exit, draw) => {
+    if (STILLS && exit) return;
+    TAG = STILLS || (!enter && !exit) ? null : { enter, exit, fx: "fade", delay: 0 };
+    draw();
+    TAG = null;
+  };
+  ties(MX, breakL); ties(breakR, R1);
+  rails(MX, breakL, north);
+  tagged(0, 2, () => {
+    rails(breakR, R1, south);
+    T(s, "break of gauge", { x: breakL, y: mid - 0.2, w: breakR - breakL, h: 0.4, fontSize: 14, bold: true, color: D.no, align: "center" });
+  });
+  tagged(2, 0, () => { ties(breakL, breakR); rails(breakL, R1, north); });
+  T(s, "North · 4 ft 8½ in", { x: MX, y: 1.35, w: 5, h: 0.35, fontSize: 18, bold: true, color: C.accent1 });
+  const southLabel = (t) => T(s, t, { x: R1 - 5, y: 1.35, w: 5, h: 0.35, fontSize: 18, bold: true, color: C.accent1, align: "right" });
+  tagged(0, 2, () => southLabel("South · 5 ft"));
+  tagged(2, 0, () => southLabel("South · 4 ft 9 in"));
+  at(1);
+  T(s, "Before 1886, freight crossing North to South was unloaded and reloaded, or each car was lifted onto new wheels.", { x: MX, y: 3.45, w: CW, h: 0.8, fontSize: 20, color: C.text1, valign: "top" });
+  at(2);
+  T(s, "31 May – 1 June 1886: the South moved one rail on more than 11,000 miles of track, in 36 hours.", { x: MX, y: 4.3, w: CW, h: 0.55, fontSize: 20, color: C.text1 });
+  at(3);
+  T(s, "The trains were fine. The track wasn’t shared.", { x: MX, y: 5.0, w: CW, h: 0.55, fontSize: 22, bold: true, color: C.text1 });
+  at(4);
+  T(s, "Iceberg is the gauge: any engine runs on any table.", { x: MX, y: 5.75, w: CW, h: 0.65, fontSize: 28, bold: true, color: C.accent2 });
+}
 stepped("02 Iceberg", "How we got here",
   "From the dashboard's Lakehouse tab, Timeline. 1990s the warehouse: storage and compute in one product, changing engine is a migration. 2006 Hadoop: open files, but storage and compute on the same boxes, because in 2006 the network was the bottleneck. 2010s the cloud warehouse: elastic compute, but the tables live inside one vendor. 2017 open table formats: Iceberg started at Netflix; writing a table still needed a Java cluster. Now: a REST catalog, and a library in a Python process writes the same tables as a cluster.",
   [-1, 0, 1, 2, 3, 4], timelineEls, { x: MX, y: 1.45, s: 0.01, f: 1 });
@@ -793,8 +866,41 @@ shotSlide("03 Engines", "Who they are", "engines", null,
   });
   T(s, "datafusion-python#1097", { x: MX, y: 6.3, w: CW, h: 0.4, fontSize: 14, color: C.text2 });
 }
+// The Iceberg support tab (docs/data/capability.json): per engine, the operations it does out of the grid's rows.
+const CAP_GRID = (() => {
+  const cap = JSON.parse(fs.readFileSync("c:/git/bench/docs/data/capability.json", "utf8"));
+  const items = Object.keys(cap.engines).map((engine) => ({
+    engine, version: cap.engines[engine].version,
+    ok: cap.rows.filter((r) => r.cells[engine]?.o === "supported").length,
+  })).sort((a, b) => b.ok - a.ok);
+  const missing = (engine) => cap.rows.filter((r) => r.cells[engine]?.o !== "supported").map((r) => r.label);
+  return { total: cap.rows.length, items, missing };
+})();
+// Polars 2.1.0 on 25 Oct 2026, the reading in bench commit 7f66067 (run 40246131077): before its main build.
+const POLARS_BEFORE = { ok: 6, version: "2.1.0", date: "25 Oct" };
+function capEls(shown) {
+  const { total, items } = CAP_GRID, W = CW * 100, name = 200, lane = W - name - 220, rowH = Math.min(46, 385 / items.length);
+  const els = [Tx(0, 24, `Operations each engine does, out of the ${total} on the grid.`, { pt: 16, color: D.ink2 })];
+  if (!shown) return els;
+  items.forEach((it, i) => {
+    const y = 50 + i * rowH, bh = rowH * 0.66, cy = y + rowH / 2, d = i * 45, w = lane * (it.ok / total);
+    els.push(Tx(name - 16, cy + 7, LABEL[it.engine] ?? it.engine, { pt: 16, bold: true, color: D.ink, align: "r", w: 300, delay: d }));
+    els.push(R(name, cy - bh / 2, lane, bh, { fill: D.track, line: null, delay: d }));
+    els.push(R(name, cy - bh / 2, w, bh, { fill: ENGINE_COLOR[it.engine] || D.ink3, line: null, fx: "wipe", delay: d }));
+    els.push(Tx(name + lane + 14, cy + 6, `${it.ok} of ${total}`, { pt: 14, bold: true, color: D.ink, delay: d + 400 }));
+  });
+  return els;
+}
+{
+  const pl = CAP_GRID.items.find((i) => i.engine === "polars_iceberg"), sr = CAP_GRID.items.find((i) => i.engine === "starrocks_iceberg");
+  stepped("03 Engines", "Iceberg support, counted",
+    `From the Iceberg support tab, counted: every operation on the grid, run against the same catalog. ${CAP_GRID.items.map((i) => `${LABEL[i.engine]} ${i.ok}`).join(", ")}, out of ${CAP_GRID.total}. This moved a lot in the last two weeks. Polars ${POLARS_BEFORE.version} did ${POLARS_BEFORE.ok} on ${POLARS_BEFORE.date}; the Polars main build does ${pl.ok}: CREATE TABLE AS SELECT, INSERT, DELETE, TRUNCATE, INSERT OVERWRITE, partitioned tables and transforms, schema changes, concurrent writers. Still missing on Polars: ${CAP_GRID.missing("polars_iceberg").join(", ")}. StarRocks joined the grid at ${sr.ok}. A missing feature is now treated as a bug.`,
+    [false, true], (shown) => [...capEls(shown),
+      CAP(`Polars: ${POLARS_BEFORE.ok} on ${POLARS_BEFORE.date} (${POLARS_BEFORE.version}), ${pl.ok} now (main). StarRocks joined at ${sr.ok}.`)],
+    { x: MX, y: 1.45, s: 0.01, f: 1 });
+}
 shotSlide("03 Engines", "The Iceberg support grid", "iceberg", null,
-  "Speed doesn't matter if the engine can't do your operation. The good news first: create, append, file pruning, time travel and concurrent appends work almost everywhere. Then the differences: who does MERGE, DELETE, partition evolution, branches. Pick on this, not on speed. Side note: Spark has the best fault tolerance and the widest coverage.");
+  `Speed doesn't matter if the engine can't do your operation. The good news first: attach, create, append, DELETE, namespaces and concurrent appends work almost everywhere. Then the differences: who does UPDATE, MERGE with two actions, INSERT OVERWRITE, partition evolution, branches and tags, compaction. StarRocks is new on the grid: no UPDATE and no MERGE with two actions yet. Polars main closed most of its gaps in two weeks; still no UPDATE, MERGE or time travel. Pick on this, not on speed. Side note: Spark has the best fault tolerance and the widest coverage.`);
 
 // ---------- 4. Fast ----------
 section("04 Fast", "04", "What does “fast” mean?", "The best query is no query.");
@@ -839,14 +945,99 @@ const LANDED = (() => {
   const m = fs.readFileSync("c:/git/bench/docs/index.html", "utf8").match(/const LANDED = \{ gb: ([\d.]+), date: "([^"]+)"/);
   return { gb: +m[1], date: m[2] };
 })();
+// The Real workload tab's last run (docs/data/workload.json): the dbt project's DAG, and per engine its leg.
+const WORKLOAD = JSON.parse(fs.readFileSync("c:/git/bench/docs/data/workload.json", "utf8"));
+const LEGS = WORKLOAD.legs;
+// The tab's DAG (dagLayout and the DAG SVG, docs/index.html L1074-1138): a column per depth, the models of a column
+// stacked in name order and centred. Wider nodes than the site's, for the bigger text. Step c shows columns 0..c;
+// the step after the last column fills a dot per engine that built the model.
+const DAG_ORDER = ["pyspark_gluten_iceberg", "trino_iceberg", "duckdb_iceberg", "polars_iceberg", "lakesail_iceberg"];
+function dagEls(step) {
+  const dag = WORKLOAD.dag, depth = {}, d = (n) => depth[n] ??= dag[n].parents.length ? 1 + Math.max(...dag[n].parents.map(d)) : 0;
+  const names = Object.keys(dag).sort();
+  names.forEach(d);
+  const cols = Math.max(...Object.values(depth)) + 1, byCol = Array.from({ length: cols }, (_, c) => names.filter((n) => depth[n] === c));
+  const W = 1100, NW = 300, NH = 72, GAP = 18, H = Math.max(...byCol.map((c) => c.length)) * (NH + GAP) - GAP, pos = {};
+  byCol.forEach((col, c) => {
+    const top = (H - (col.length * (NH + GAP) - GAP)) / 2;
+    col.forEach((n, i) => { pos[n] = { x: cols > 1 ? c * (W - NW) / (cols - 1) : 0, y: top + i * (NH + GAP) }; });
+  });
+  const engines = Object.keys(LEGS).sort((a, b) => DAG_ORDER.indexOf(a) - DAG_ORDER.indexOf(b));
+  const rowsOf = (n) => { const v = engines.map((e) => LEGS[e].model_rows?.[n]).filter((x) => x != null); return v.length ? Math.max(...v) : null; };
+  const compact = (v) => v >= 1e6 ? `${(v / 1e6).toFixed(1)}M` : v >= 1e4 ? `${Math.round(v / 1e3)}k` : v.toLocaleString("en");
+  const els = [];
+  for (const n of names) {
+    if (depth[n] > step) continue;
+    const { x, y } = pos[n], m = dag[n], r = rowsOf(n);
+    for (const p of m.parents) {  // the edge into a model draws itself as the model lands
+      const a = pos[p], x1 = a.x + NW, y1 = a.y + NH / 2, x2 = x, y2 = y + NH / 2, k = (x2 - x1) / 2;
+      const o = { color: mix(D.ink3, D.bg, 0.8), lw: 1.5, dash: "dash", fx: "wipe", z: 0 };
+      els.push(y1 === y2 ? Ln(x1, y1, x2, y2, o) : { type: "curve", x1, y1, cx1: x1 + k, cy1: y1, cx2: x2 - k, cy2: y2, x2, y2, ...o });
+    }
+    els.push(R(x, y, NW, NH, { r: 10, fill: D.raised, line: D.grid, lw: 1.5, z: 1, delay: 300 }));
+    els.push(Tx(x + 12, y + 28, n, { px: 15, bold: true, color: D.ink, w: NW - 24, delay: 300 }));
+    if (r != null) els.push(Tx(x + NW - 12, y + 28, `${compact(r)} rows`, { px: 13, bold: true, color: D.ink2, align: "r", w: 150, delay: 300 }));
+    els.push(Tx(x + 12, y + 58, m.materialized === "source" ? `source · ${Math.round(LANDED.gb)} GB of CSV` : m.materialized, { px: 12, color: D.ink3, w: NW - 24, delay: 300 }));
+    if (step >= cols && m.materialized !== "source") engines.forEach((e, i) => {
+      const built = LEGS[e].model_rows?.[n] != null, c = ENGINE_COLOR[e] || D.ink3;
+      els.push(Ov(x + NW - 22 - (engines.length - 1 - i) * 16, y + 47, 11, 11, { fill: built ? c : null, line: c, lw: 1.5, z: 2, delay: i * 120 }));
+    });
+  }
+  const models = names.filter((n) => dag[n].materialized !== "source").length;
+  els.push(CAP(step >= cols
+    ? `One dbt project, ${models} models, incremental MERGE: a dot per engine that built it. ${engines.length} engines, the same tables.`
+    : `One dbt project, ${models} models, incremental MERGE.`));
+  return { els, cols, W, H };
+}
+{
+  const { cols, W: dw, H: dh } = dagEls(0);
+  stepped("05 Real-life use case", "The dbt project",
+    `The real workload is one dbt project, the DAG as dbt itself publishes it. One source: every AEMO daily file landed, ${Math.round(LANDED.gb)} GB of CSV. Then five incremental models: the price and SCADA facts, their today views, and the unit dimension, every one a MERGE on its key into an Iceberg table that only grows. Then fct_summary on top of them. Last click: a dot per engine, filled when that engine built the model. ${Object.keys(LEGS).length} engines, the same models, the same catalog.`,
+    [...Array(cols + 1).keys()], (k) => dagEls(k).els, fit(dw, dh, 1.55, { x: MX, y: 1.5, w: CW, h: 4.35 }));
+}
 {
   // No title: the screenshot is the slide.
   const s = tagBuilds(pres.addSlide({ masterName: "SHOT", sectionTitle: "05 Real-life use case" }));
   shot(s, "shot-workload", "workload", MX, 0.4, CW, 6.4);
   s.addNotes(`From the dashboard's Real workload tab: one dbt project, incremental with MERGE, never reset. The source is ${Math.round(LANDED.gb)} GB of AEMO CSV files (measured ${LANDED.date}). Same dbt project, five engines, same catalog; Iceberg made that a config change. This is the real-life benchmark: dbt orchestrates the SQL, every model is written to Iceberg. One run tests reading files, GROUP BY, complex MERGE on composite keys, writing Iceberg, incremental builds on tables that keep growing, and how well each dbt adapter is implemented. Spark and Trino, which is obvious; DuckDB, Polars and LakeSail did it too. I hope next year more engines join. Real life is boring: DuckDB went from a dead runner at 100 files to 360 by staging through a view. Find your one thing by running your own workload.`);
 }
-// The Real workload tab's last run (docs/data/workload.json), per engine.
-const LEGS = JSON.parse(fs.readFileSync("c:/git/bench/docs/data/workload.json", "utf8")).legs;
+{
+  // workload/profiles.yml: the sail and gluten targets are the same dbt-spark session; workload/dbt_project.yml
+  // enables models/aemo/spark/ for target.name in ['gluten', 'sail']. Times are the last run's (workload.json).
+  const sail = LEGS.lakesail_iceberg, gluten = LEGS.pyspark_gluten_iceberg;
+  const s = content("05 Real-life use case", "Same code, two engines",
+    `Here is how far dbt goes. LakeSail is Rust, built on DataFusion, and speaks Spark Connect. Spark with Gluten is the JVM with Velox, C++, underneath. They share no code. In profiles.yml their targets are the same four lines: type spark, method session. And they run the exact same SQL files, the spark folder of the project, ${sail.models} models, not one line changed between them. Both write the same Iceberg tables in the same catalog. Last run: LakeSail ${fmt(sail.build_seconds)}, Gluten ${fmt(gluten.build_seconds)}, every model built on both. That's the paradigm: the code and the tables stay, the engine is a target in profiles.yml. I was scared of Jinja; AI made me a dbt believer. I don't write the models, I review the tests.`);
+  const cw = 3.9, ch = 2.7, y0 = 1.5, xl = MX, xr = W - MX - cw, mono = { fontFace: "Consolas", fontSize: 15, color: C.text1 };
+  const yaml = (target) => `${target}:\n  type: spark\n  method: session\n  schema: mart\n  threads: 1`;
+  [[xl, "lakesail_iceberg", "LakeSail", "Rust · DataFusion · Spark Connect", "sail"],
+    [xr, "pyspark_gluten_iceberg", "Spark + Gluten/Velox", "JVM · C++ underneath", "gluten"]].forEach(([x, e, head, sub, target]) => {
+    card(s, "same-" + target, x, y0, cw, ch);
+    s.addShape(pres.shapes.RECTANGLE, { x, y: y0 + 0.3, w: 0.08, h: 0.45, fill: { color: ENGINE_COLOR[e] }, line: { type: "none" } });
+    T(s, head, { x: x + 0.3, y: y0 + 0.25, w: cw - 0.5, h: 0.5, fontSize: 22, bold: true, color: C.text1 });
+    T(s, sub, { x: x + 0.3, y: y0 + 0.78, w: cw - 0.5, h: 0.4, fontSize: 15, color: C.text2 });
+    T(s, yaml(target), { x: x + 0.3, y: y0 + 1.3, w: cw - 0.5, h: 1.3, valign: "top", ...mono });
+  });
+  const arrow = (x1, y1, x2, y2) => s.addShape(pres.shapes.LINE, {
+    x: Math.min(x1, x2), y: Math.min(y1, y2), w: Math.abs(x2 - x1), h: Math.abs(y2 - y1), flipH: x2 < x1,
+    line: { color: H.accent5, width: 2.5, endArrowType: "triangle" },
+  });
+  const bx = xl + cw + 0.45, bw = xr - 0.45 - bx;
+  at(1);
+  arrow(xl + cw + 0.05, y0 + 0.9, bx - 0.05, y0 + 0.9);
+  arrow(xr - 0.05, y0 + 0.9, bx + bw + 0.05, y0 + 0.9);
+  card(s, "same-models", bx, y0 + 0.25, bw, 1.3, C.text1);
+  T(s, "models/aemo/spark/", { x: bx + 0.2, y: y0 + 0.4, w: bw - 0.4, h: 0.45, fontFace: "Consolas", fontSize: 18, bold: true, color: C.accent6, align: "center" });
+  T(s, `${sail.models} models, one copy`, { x: bx + 0.2, y: y0 + 0.9, w: bw - 0.4, h: 0.45, fontSize: 18, color: C.background1, align: "center" });
+  arrow(bx + bw / 2, y0 + 1.6, bx + bw / 2, y0 + 1.95);
+  card(s, "same-tables", bx, y0 + 2.0, bw, 0.7);
+  T(s, "Same Iceberg tables, same catalog", { x: bx + 0.1, y: y0 + 2.0, w: bw - 0.2, h: 0.7, fontSize: 15, bold: true, color: C.accent1, align: "center", valign: "middle" });
+  at(2);
+  [[xl, sail], [xr, gluten]].forEach(([x, leg]) =>
+    T(s, `${fmt(leg.build_seconds)} · ${leg.models_ok} of ${leg.models} models · ${leg.adapter}`, { x, y: y0 + ch + 0.15, w: cw, h: 0.4, fontSize: 15, color: C.text2, align: "center" }));
+  at(3);
+  T(s, "dbt + Iceberg: a new way to do data engineering.", { x: MX, y: 5.2, w: CW, h: 0.65, fontSize: 28, bold: true, color: C.accent2 });
+  T(s, "The code and the tables stay. The engine is a target in profiles.yml.", { x: MX, y: 5.9, w: CW, h: 0.5, fontSize: 20, color: C.text2 });
+}
 {
   // The ragged CSV: workload/macros/*_read_csv.sql and LEARNING.md "dbt on Sail"; the adapters' staging: LEARNING.md
   // "dbt stages the batch before the MERGE"; the spill is the last run's peak, from workload.json.
