@@ -437,7 +437,6 @@ const HOW = "C:/git/presentations/analytics-as-code/img/how/";
 {
   const s = slide("TITLE");
   s.addText("Thank you", { placeholder: "title" });
-  s.addText([{ text: "nemtracker.github.io", options: { breakLine: true } }, { text: "github.com/djouallah/analytics-as-code", options: { breakLine: true } }, { text: "datamonkeysite.com" }], { placeholder: "body" });
   s.addImage({ path: AS + "qr_nemtracker.png", x: W - M - 3.0, y: 2.0, w: 3.0, h: 3.0, objectName: name() });
   s.addText("Try it after the talk", { x: W - M - 3.0, y: 5.1, w: 3.0, h: 0.4, fontSize: 14, color: C.text2, align: "center", margin: 0, isTextBox: true, objectName: name() });
   s.addNotes("Questions. The QR code is here, after the demos, so the room's Wi-Fi was free during them.");

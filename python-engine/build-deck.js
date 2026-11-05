@@ -80,6 +80,8 @@ pres.defineSlideMaster({
     { placeholder: { options: { name: "title", type: "title", align: "center", x: 0.8, y: 2.0, w: 11.7, h: 3.5, fontSize: 60, bold: true, color: C.background1, valign: "middle", margin: 0 }, text: "" } },
   ],
 });
+// The dark background alone: no placeholder, so every line on it can be a click.
+pres.defineSlideMaster({ title: "DARK", background: { color: H.dk1 }, objects: [] });
 // A picture alone on the light background: no title, footer or slide number.
 pres.defineSlideMaster({ title: "BLANK", background: { color: H.lt1 }, objects: [] });
 // A content slide whose title is a statement of up to three lines.
@@ -338,18 +340,18 @@ function stepped(sectionTitle, title, notes, steps, draw, M) {
 
 // How we got here: three lines that run side by side to today, not eras that replace each other. The warehouse
 // line, the open lake line (Hadoop, then the table formats, then the open lakehouse), and the closed lakehouse,
-// which forks off the open line after the table formats. One era per click, in date order; the last click tags
-// every line "still here". Units are 1/100 inch.
-const LANES = { wh: { y: 105, c: D.ink3, tag: "Warehouse" }, cl: { y: 250, c: D.noop, tag: "Closed lakehouse" }, op: { y: 420, c: D.accent, tag: "Open lakehouse" } };
+// which forks up off the open line where it reaches today. One era per click: the open lakehouse lands with the
+// caption, and the closed fork comes last. Units are 1/100 inch.
+const LANES = { wh: { y: 105, c: D.ink3 }, cl: { y: 250, c: D.noop }, op: { y: 420, c: D.accent } };
 const ERAS = [
   { k: 1, lane: "wh", x: 30, when: "1990s", title: "The warehouse", text: "Storage and compute in one product. The engine owns the data." },
   { k: 2, lane: "op", x: 220, when: "2006", title: "Big data: Hadoop", text: "Open files, but you need the cluster to read them." },
   { k: 3, lane: "wh", x: 420, when: "2010s", title: "The cloud warehouse", text: "Elastic compute, but the tables live inside one vendor." },
   { k: 4, lane: "op", x: 560, when: "2017", title: "Open table formats", w: 250, text: "Tables in object storage, but writing one needs a Java cluster." },
-  { k: 5, lane: "cl", x: 900, when: "", title: "The closed lakehouse", text: "An open table format, but no direct access to the storage." },
-  { k: 6, lane: "op", x: 900, when: "Now", title: "The open lakehouse", now: true, text: "A REST catalog: any engine reads and writes, even a Python library." },
+  { k: 6, lane: "cl", x: 932, tx: 900, when: "", title: "The closed lakehouse", text: "An open table format, but no direct access to the storage." },
+  { k: 5, lane: "op", x: 900, tx: 935, when: "Now", title: "The open lakehouse", now: true, text: "A REST catalog: any engine reads and writes, even a Python library." },
 ];
-const TL_END = CW * 100, TL_FORK = { x1: 810, x2: 880 }, TL_LAST = 7;
+const TL_END = CW * 100, TL_FORK = { x1: 900, x2: 932 }, TL_CAPTION = 5, TL_LAST = 6;
 function timelineEls(k) {
   const els = [], lw = 8, d = 300;  // the line draws itself, then the era lands on it
   const lane = (key, x0, from) => {
@@ -358,7 +360,7 @@ function timelineEls(k) {
   };
   lane("wh", 30, 1);
   lane("op", 220, 2);
-  if (k >= 5) {  // the closed lakehouse forks off the open line
+  if (k >= 6) {  // the closed lakehouse forks off the open line, last
     const { y: y1 } = LANES.op, { y: y2 } = LANES.cl, { x1, x2 } = TL_FORK, m = (x1 + x2) / 2;
     els.push({ type: "curve", x1, y1, cx1: m, cy1: y1, cx2: m, cy2: y2, x2, y2, color: LANES.cl.c, lw, fx: "wipe", z: 0 });
     els.push(Ln(x2, y2, TL_END, y2, { color: LANES.cl.c, lw, arrow: true, fx: "wipe", z: 0, delay: 200 }));
@@ -367,12 +369,12 @@ function timelineEls(k) {
     if (k < e.k) continue;
     const { y, c } = LANES[e.lane], r = e.now ? 20 : 14;
     els.push(Ov(e.x - r, y - r, 2 * r, 2 * r, { fill: c, line: D.bg, lw: 4, z: 1, delay: d }));
-    if (e.when) els.push(Tx(e.x - 14, y - 92, e.when, { pt: e.now ? 18 : 16, bold: true, color: c, w: 300, delay: d }));
-    els.push(Tx(e.x - 14, y - 68, e.title, { pt: e.now ? 19 : 17, bold: true, color: D.ink, w: 300, delay: d }));
-    els.push(Tx(e.x - 14, y - 60, e.text, { pt: 12, color: D.ink2, w: e.w ?? 320, h: 40, delay: d }));
+    const tx = (e.tx ?? e.x) - 14;
+    if (e.when) els.push(Tx(tx, y - 92, e.when, { pt: e.now ? 18 : 16, bold: true, color: c, w: 300, delay: d }));
+    els.push(Tx(tx, y - 68, e.title, { pt: e.now ? 19 : 17, bold: true, color: D.ink, w: 300, delay: d }));
+    els.push(Tx(tx, y - 60, e.text, { pt: 12, color: D.ink2, w: e.w ?? 320, h: 40, delay: d }));
   }
-  if (k >= TL_LAST) {
-    for (const L of Object.values(LANES)) els.push(Tx(TL_END, L.y + 30, `${L.tag} · still here`, { pt: 13, bold: true, color: L.c, align: "r", w: 400 }));
+  if (k >= TL_CAPTION) {
     els.push(CAP("Nothing replaced anything: three lines, all alive. This talk is about the bottom one."));
   }
   return els;
@@ -708,7 +710,6 @@ pres.addSection({ title: "Opening" });
   T(s, "A personal project. My own opinions.", { x: MX, y: 5.7, w: 8.2, h: 0.5, fontSize: 18, italic: true, color: C.text2 });
   s.addShape(pres.shapes.ROUNDED_RECTANGLE, { objectName: "qr-frame", x: 9.55, y: 1.75, w: 3.2, h: 3.2, rectRadius: 0.15, fill: { color: "FFFFFF" }, line: { color: H.accent4, width: 1 } });
   s.addImage({ objectName: "qr-linkedin", path: SHOTS + "qr_linkedin.png", x: 9.7, y: 1.9, w: 2.9, h: 2.9, altText: "QR code: linkedin.com/in/mimounedjouallah" });
-  T(s, "linkedin.com/in/mimounedjouallah", { x: 8.9, y: 5.1, w: 4.5, h: 0.5, fontSize: 14, color: C.accent1, align: "center" });
 }
 
 {
@@ -785,6 +786,11 @@ pres.addSection({ title: "01 What changed since 2025" });
   s.addNotes("The DataFrame API used to be my biggest pain point: a different syntax for every engine, and no standard. For a couple of months now, I don't care.");
 }
 
+{
+  // The bell-curve meme: SQL at both ends, the DataFrame API in the middle. No notes.
+  const s = pres.addSlide({ masterName: "BLANK", sectionTitle: "01 What changed since 2025" });
+  s.addImage({ path: SHOTS + "meme_sql.jpeg", x: 2.19, y: 0.44, w: 9.01, h: 6.66, altText: "Bell-curve meme: SQL at both ends, the DataFrame API in the middle" });
+}
 // ---------- 2. Iceberg ----------
 section("02 Iceberg", "02", "Iceberg", "All engines are equal, as long as they speak the same spec.",
   "Not long ago your data lived inside an engine. Changing engine meant migrating.");
@@ -822,8 +828,6 @@ stepped("02 Iceberg", "How we got here",
   T(s, "Before 1886, freight crossing North to South was unloaded and reloaded, or each car was lifted onto new wheels.", { x: MX, y: 3.45, w: CW, h: 0.8, fontSize: 20, color: C.text1, valign: "top" });
   at(2);
   T(s, "31 May – 1 June 1886: the South moved one rail on more than 11,000 miles of track, in 36 hours.", { x: MX, y: 4.3, w: CW, h: 0.55, fontSize: 20, color: C.text1 });
-  at(3);
-  T(s, "The trains were fine. The track wasn’t shared.", { x: MX, y: 5.0, w: CW, h: 0.55, fontSize: 22, bold: true, color: C.text1 });
 }
 shotSlide("02 Iceberg", "The open lakehouse", "overview", null,
   "From the dashboard's Overview. Files in an object store, the state in a catalog, compute in any engine, and none of them owns the data. The job moves from engine to engine; every one commits to the same catalog. Small projects now get treated the same as big commercial and veteran open-source ones.");
@@ -981,10 +985,9 @@ const LEGS = JSON.parse(fs.readFileSync("c:/git/bench/docs/data/workload.json", 
   T(s, "Same Iceberg tables, same catalog", { x: bx + 0.1, y: y0 + 2.0, w: bw - 0.2, h: 0.7, fontSize: 15, bold: true, color: C.accent1, align: "center", valign: "middle" });
   at(2);
   [[xl, sail], [xr, gluten]].forEach(([x, leg]) =>
-    T(s, `${fmt(leg.build_seconds)} · ${leg.models_ok} of ${leg.models} models · ${leg.adapter}`, { x, y: y0 + ch + 0.15, w: cw, h: 0.4, fontSize: 15, color: C.text2, align: "center" }));
+    T(s, `${leg.models_ok} of ${leg.models} models · ${leg.adapter}`, { x, y: y0 + ch + 0.15, w: cw, h: 0.4, fontSize: 15, color: C.text2, align: "center" }));
   at(3);
-  T(s, "dbt + Iceberg: a new way to do data engineering.", { x: MX, y: 5.2, w: CW, h: 0.65, fontSize: 28, bold: true, color: C.accent2 });
-  T(s, "The code and the tables stay. The engine is a target in profiles.yml.", { x: MX, y: 5.9, w: CW, h: 0.5, fontSize: 20, color: C.text2 });
+  T(s, "dbt + Iceberg: a new way to do data engineering.", { x: MX, y: 5.8, w: CW, h: 0.65, fontSize: 28, bold: true, color: C.accent2 });
 }
 {
   // The ragged CSV: workload/macros/*_read_csv.sql and LEARNING.md "dbt on Sail"; the adapters' staging: LEARNING.md
@@ -1094,28 +1097,26 @@ const LEGS_DONE = (() => {
     .sort((a, b) => LABEL[a].localeCompare(LABEL[b], "en", { sensitivity: "base" }));
 })();
 {
-  const s = pres.addSlide({ masterName: "PUNCHLINE", sectionTitle: "Close" });
-  s.addText(`My use case used to work with only 1 engine. Now we have ${LEGS_DONE.length}. That’s progress.`, { placeholder: "title" });
+  // Click 1, the line; click 2, a mascot for each engine besides Spark that finishes it now. Text boxes, not the
+  // PUNCHLINE placeholder, so the line can be a click of its own.
+  const s = tagBuilds(pres.addSlide({ masterName: "DARK", sectionTitle: "Close" }));
   s.addNotes(`My use case used to work with only one engine. Now ${LEGS_DONE.length} finish it. That's progress. These engines work, and that's the story. To make it work you need a whole ecosystem: Iceberg support, the catalog, a dbt adapter, spill to disk.`);
-  // Emoji stand-ins for the logos, no names, centred under the line.
-  const MASCOT = { duckdb_iceberg: "🦆", pyspark_gluten_iceberg: "⭐", lakesail_iceberg: "⛵", polars_iceberg: "🐻‍❄️", trino_iceberg: "🐰" };
-  const x0 = (W - (LEGS_DONE.length * 1.4 - 0.2)) / 2;
-  LEGS_DONE.forEach((e, k) => {
-    s.addText(MASCOT[e] ?? LABEL[e], { isTextBox: true, margin: 0, x: x0 + k * 1.4, y: 5.55, w: 1.2, h: 0.85, fontSize: MASCOT[e] ? 44 : 16, bold: !MASCOT[e], color: C.background1, align: "center", valign: "top" });
+  at(1);
+  T(s, "In 2023, Spark only supported my use case", { x: 0.22, y: 0.68, w: 12.75, h: 2.32, fontFace: THEME.headFontFace, fontSize: 60, bold: true, color: C.background1, align: "center", valign: "middle" });
+  // Emoji stand-ins for the logos, no names, centred.
+  const MASCOT = { duckdb_iceberg: "🦆", lakesail_iceberg: "⛵", polars_iceberg: "🐻‍❄️", trino_iceberg: "🐰" };
+  const others = LEGS_DONE.filter((e) => !e.startsWith("pyspark_")), step = 1.87, x0 = (W - ((others.length - 1) * step + 1.2)) / 2;
+  at(2);
+  others.forEach((e, k) => {
+    T(s, MASCOT[e] ?? LABEL[e], { x: x0 + k * step, y: 5.55, w: 1.2, h: 0.85, fontSize: MASCOT[e] ? 44 : 16, bold: !MASCOT[e], color: C.background1, align: "center", valign: "top" });
   });
-}
-{
-  // The bell-curve meme: SQL at both ends, the DataFrame API in the middle. No notes.
-  const s = pres.addSlide({ masterName: "BLANK", sectionTitle: "Close" });
-  s.addImage({ path: SHOTS + "meme_sql.jpeg", x: 2.19, y: 0.44, w: 9.01, h: 6.66, altText: "Bell-curve meme: SQL at both ends, the DataFrame API in the middle" });
 }
 {
   const s = pres.addSlide({ masterName: "TITLE", sectionTitle: "Close" });
   s.addText("Thank you", { placeholder: "title" });
-  s.addText("Questions?  ·  djouallah.github.io/lakehouse_benchmark", { placeholder: "body" });
+  s.addText("Questions?", { placeholder: "body" });
   s.addShape(pres.shapes.ROUNDED_RECTANGLE, { objectName: "qr-frame", x: 9.55, y: 1.75, w: 3.2, h: 3.2, rectRadius: 0.15, fill: { color: C.background1 }, line: { type: "none" } });
   s.addImage({ objectName: "qr-github", path: SHOTS + "qr_github.png", x: 9.7, y: 1.9, w: 2.9, h: 2.9, altText: "QR code: github.com/djouallah/lakehouse_benchmark" });
-  s.addText("Scan for the code: github.com/djouallah/lakehouse_benchmark", { isTextBox: true, margin: 0, x: 8.9, y: 5.1, w: 4.5, h: 0.7, fontSize: 14, color: C.accent3, align: "center" });
   s.addNotes("Questions?");
 }
 

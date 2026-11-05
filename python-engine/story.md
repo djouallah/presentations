@@ -16,14 +16,15 @@ One slide, three themes, one per click. I gave this talk last year (Life Beyond 
 - **Iceberg.** The new baseline: a missing feature is treated as a bug. Last year most of these engines couldn't write a table (Delta through delta-rs); now they all write Iceberg.
 - **AI.** I don't care about the lack of a standard DataFrame API; I became a dbt believer only because of AI (I was scared of Jinja); I don't write any code, I just review the tests.
 - Last click: Python engines aren't niche anymore. They're mainstream, and a bit boring.
+- Then the DataFrame punchline, then the bell-curve meme (SQL at both ends, the DataFrame API in the middle): a picture alone, no notes.
 
 ## 2. Iceberg (4 min)
 - All engines are equal, as long as they speak the same spec.
 - Not long ago your data lived inside an engine. Changing engine meant migrating.
-- **Break of gauge** (the analogy, after the Timeline; the last line is spoken, not on the slide): before 1886 the US North ran on 4 ft 8½ in, most of the South on 5 ft; freight was unloaded and reloaded, or cars put on new wheels. On 31 May – 1 June 1886 the South moved one rail on more than 11,000 miles of track in 36 hours. The trains were fine; the track wasn't shared. Iceberg is the gauge: any engine runs on any table.
+- **Break of gauge** (the analogy, after the Timeline; "the trains were fine, the track wasn't shared" and "Iceberg is the gauge" are spoken, not on the slide): before 1886 the US North ran on 4 ft 8½ in, most of the South on 5 ft; freight was unloaded and reloaded, or cars put on new wheels. On 31 May – 1 June 1886 the South moved one rail on more than 11,000 miles of track in 36 hours. The trains were fine; the track wasn't shared. Iceberg is the gauge: any engine runs on any table.
 - Iceberg + a REST catalog changed that: tables live in the open, and any engine can read and write them.
 - which is awesome as many small projects will be treated the same as very big commerical or vetetran open source porjetcs
-- Show: Timeline as three parallel lines, all still here (warehouse; closed lakehouse: open table format, no direct access to the storage; open lakehouse), Overview, then Concurrency: one commit refused and retried, the catalog is the referee (dashboard, Lakehouse tab).
+- Show: Timeline as three parallel lines, nothing replaced (warehouse; closed lakehouse: open table format, no direct access to the storage; open lakehouse, with the caption; the closed one forks off it last), Overview, then Concurrency: one commit refused and retried, the catalog is the referee (dashboard, Lakehouse tab).
 
 ## 3. The engines (4 min)
 - **Disclosure** (30 s), before Who they are, so the Iceberg grid reads against this catalog: Free GitHub runners, 4 cores / 16 GB. OneLake Catalog, because I get it free through my job :)
@@ -73,6 +74,7 @@ One slide, three themes, one per click. I gave this talk last year (Life Beyond 
 - **Report bugs.** Instead of flooding projects with AI pull requests, report bugs. Bugs, not feature requests. Check it isn't a duplicate. The smallest possible repro.
 
 ## Close
-Before Thank you, after the 1 → 5 engines punchline: the bell-curve meme, SQL at both ends, the DataFrame API in the middle. A picture alone, no notes.
 
-Thank you. Questions. Across the top: the engines that finish the real-life dbt workload, by name, as emoji with no names (🦆 DuckDB, ⭐ Gluten/Velox on Spark, ⛵ LakeSail, 🐻‍❄️ Polars, 🐰 Trino; from docs/data/workload.json). Spoken: these engines work, and that's the story; to make it work you need a whole ecosystem: Iceberg support, the catalog, a dbt adapter, spill to disk.
+Punchline, on a click: "In 2023, Spark only supported my use case". Next click: a mascot for each other engine that finishes the real-life dbt workload now, emoji with no names (🦆 DuckDB, ⛵ LakeSail, 🐻‍❄️ Polars, 🐰 Trino; from docs/data/workload.json). Spoken: these engines work, and that's the story; to make it work you need a whole ecosystem: Iceberg support, the catalog, a dbt adapter, spill to disk.
+
+Thank you: "Questions?" and the QR to the repo, nothing else.
