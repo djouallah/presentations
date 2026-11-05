@@ -23,7 +23,7 @@ One slide, three themes, one per click. I gave this talk last year (Life Beyond 
 - **Break of gauge** (the analogy, after the Timeline; the last line is spoken, not on the slide): before 1886 the US North ran on 4 ft 8½ in, most of the South on 5 ft; freight was unloaded and reloaded, or cars put on new wheels. On 31 May – 1 June 1886 the South moved one rail on more than 11,000 miles of track in 36 hours. The trains were fine; the track wasn't shared. Iceberg is the gauge: any engine runs on any table.
 - Iceberg + a REST catalog changed that: tables live in the open, and any engine can read and write them.
 - which is awesome as many small projects will be treated the same as very big commerical or vetetran open source porjetcs
-- Show: Timeline, Overview, then Concurrency: one commit refused and retried, the catalog is the referee (dashboard, Lakehouse tab).
+- Show: Timeline as three parallel lines, all still here (warehouse; closed lakehouse: open table format, no direct access to the storage; open lakehouse), Overview, then Concurrency: one commit refused and retried, the catalog is the referee (dashboard, Lakehouse tab).
 
 ## 3. The engines (4 min)
 - **Disclosure** (30 s), before Who they are, so the Iceberg grid reads against this catalog: Free GitHub runners, 4 cores / 16 GB. OneLake Catalog, because I get it free through my job :)

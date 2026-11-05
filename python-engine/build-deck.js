@@ -336,36 +336,45 @@ function stepped(sectionTitle, title, notes, steps, draw, M) {
   TAG = null;
 }
 
-// The Timeline tab (docs/index.html ERAS, L903; CSS L357-380): the eras land one at a time on a rail that draws
-// itself. Units here are 1/100 inch.
+// How we got here: three lines that run side by side to today, not eras that replace each other. The warehouse
+// line, the open lake line (Hadoop, then the table formats, then the open lakehouse), and the closed lakehouse,
+// which forks off the open line after the table formats. One era per click, in date order; the last click tags
+// every line "still here". Units are 1/100 inch.
+const LANES = { wh: { y: 105, c: D.ink3, tag: "Warehouse" }, cl: { y: 250, c: D.noop, tag: "Closed lakehouse" }, op: { y: 420, c: D.accent, tag: "Open lakehouse" } };
 const ERAS = [
-  { when: "1990s", title: "The warehouse",
-    text: "Storage and compute in one product. The engine owns the data; changing engine is a migration." },
-  { when: "2006", title: "Big data: Hadoop",
-    text: "Files spread over a cluster's disks. The data is open, but you need the cluster to read it." },
-  { when: "2010s", title: "The cloud warehouse",
-    text: "Elastic compute, but the tables live inside one vendor." },
-  { when: "2017", title: "Open table formats",
-    text: "Iceberg (Netflix), Hudi, Delta: tables in object storage, but writing one needed a Java cluster (Spark, Trino)." },
-  { when: "Now", title: "The open lakehouse", now: true,
-    text: "A REST catalog, and table libraries in Rust, C++ and Python: a library in a Python process writes the same tables as a cluster." },
+  { k: 1, lane: "wh", x: 30, when: "1990s", title: "The warehouse", text: "Storage and compute in one product. The engine owns the data." },
+  { k: 2, lane: "op", x: 220, when: "2006", title: "Big data: Hadoop", text: "Open files, but you need the cluster to read them." },
+  { k: 3, lane: "wh", x: 420, when: "2010s", title: "The cloud warehouse", text: "Elastic compute, but the tables live inside one vendor." },
+  { k: 4, lane: "op", x: 560, when: "2017", title: "Open table formats", w: 250, text: "Tables in object storage, but writing one needs a Java cluster." },
+  { k: 5, lane: "cl", x: 900, when: "", title: "The closed lakehouse", text: "An open table format, but no direct access to the storage." },
+  { k: 6, lane: "op", x: 900, when: "Now", title: "The open lakehouse", now: true, text: "A REST catalog: any engine reads and writes, even a Python library." },
 ];
+const TL_END = CW * 100, TL_FORK = { x1: 810, x2: 880 }, TL_LAST = 7;
 function timelineEls(k) {
-  const n = ERAS.length, gap = 22, cw = (CW * 100 - gap * (n - 1)) / n, railY = 30, top = 80;
-  const col = (j) => j * (cw + gap), dot = (j) => col(j) + 40;
-  const els = [R(24, railY, CW * 100 - 48, 7, { r: 3.5, fill: D.grid, line: null })];
-  ERAS.forEach((e, j) => {
-    if (j > k) return;
-    const now = !!e.now, from = j ? dot(j - 1) : 24, d = 300;  // the rail reaches the dot, then the era lands
-    els.push(R(from, railY, dot(j) - from, 7, { fill: mix(D.accent, D.ink3, j / (n - 1)), line: null, fx: "wipe", z: 0.2 }));
-    els.push(R(col(j), top, cw, 400, {
-      r: 20, fill: now ? mix(D.accent, D.raised, 0.08) : D.raised, line: now ? D.accent : D.grid, lw: now ? 3 : 1.2, delay: d,
-    }));
-    els.push(Ov(dot(j) - 15, railY - 12, 30, 30, { fill: now ? D.accent : D.ink3, line: D.bg, lw: 5, z: 0.4, delay: d }));
-    els.push(Tx(col(j) + 22, top + 22, e.when, { pt: 40, bold: true, color: now ? D.accent : D.ink3, w: cw - 44, h: 70, delay: d }));
-    els.push(Tx(col(j) + 22, top + 100, e.title, { pt: 21, bold: true, color: D.ink, w: cw - 44, h: 80, delay: d }));
-    els.push(Tx(col(j) + 22, top + 185, e.text, { pt: 15, color: D.ink2, w: cw - 44, h: 200, delay: d }));
-  });
+  const els = [], lw = 8, d = 300;  // the line draws itself, then the era lands on it
+  const lane = (key, x0, from) => {
+    const L = LANES[key];
+    if (k >= from) els.push(Ln(x0, L.y, TL_END, L.y, { color: L.c, lw, arrow: true, fx: "wipe", z: 0 }));
+  };
+  lane("wh", 30, 1);
+  lane("op", 220, 2);
+  if (k >= 5) {  // the closed lakehouse forks off the open line
+    const { y: y1 } = LANES.op, { y: y2 } = LANES.cl, { x1, x2 } = TL_FORK, m = (x1 + x2) / 2;
+    els.push({ type: "curve", x1, y1, cx1: m, cy1: y1, cx2: m, cy2: y2, x2, y2, color: LANES.cl.c, lw, fx: "wipe", z: 0 });
+    els.push(Ln(x2, y2, TL_END, y2, { color: LANES.cl.c, lw, arrow: true, fx: "wipe", z: 0, delay: 200 }));
+  }
+  for (const e of ERAS) {
+    if (k < e.k) continue;
+    const { y, c } = LANES[e.lane], r = e.now ? 20 : 14;
+    els.push(Ov(e.x - r, y - r, 2 * r, 2 * r, { fill: c, line: D.bg, lw: 4, z: 1, delay: d }));
+    if (e.when) els.push(Tx(e.x - 14, y - 92, e.when, { pt: e.now ? 18 : 16, bold: true, color: c, w: 300, delay: d }));
+    els.push(Tx(e.x - 14, y - 68, e.title, { pt: e.now ? 19 : 17, bold: true, color: D.ink, w: 300, delay: d }));
+    els.push(Tx(e.x - 14, y - 60, e.text, { pt: 12, color: D.ink2, w: e.w ?? 320, h: 40, delay: d }));
+  }
+  if (k >= TL_LAST) {
+    for (const L of Object.values(LANES)) els.push(Tx(TL_END, L.y + 30, `${L.tag} · still here`, { pt: 13, bold: true, color: L.c, align: "r", w: 400 }));
+    els.push(CAP("Nothing replaced anything: three lines, all alive. This talk is about the bottom one."));
+  }
   return els;
 }
 
@@ -780,8 +789,8 @@ pres.addSection({ title: "01 What changed since 2025" });
 section("02 Iceberg", "02", "Iceberg", "All engines are equal, as long as they speak the same spec.",
   "Not long ago your data lived inside an engine. Changing engine meant migrating.");
 stepped("02 Iceberg", "How we got here",
-  "From the dashboard's Lakehouse tab, Timeline. 1990s the warehouse: storage and compute in one product, changing engine is a migration. 2006 Hadoop: open files, but storage and compute on the same boxes, because in 2006 the network was the bottleneck. 2010s the cloud warehouse: elastic compute, but the tables live inside one vendor. 2017 open table formats: Iceberg started at Netflix; writing a table still needed a Java cluster. Now: a REST catalog, and a library in a Python process writes the same tables as a cluster.",
-  [-1, 0, 1, 2, 3, 4], timelineEls, { x: MX, y: 1.45, s: 0.01, f: 1 });
+  "Three lines, side by side, and none of them replaced another. The warehouse: 1990s, storage and compute in one product, the engine owns the data; 2010s, the cloud warehouse, elastic compute, but the tables live inside one vendor. It's still here. The lake: 2006, Hadoop, open files, but you need the cluster to read them, because in 2006 the network was the bottleneck; 2017, open table formats, Iceberg started at Netflix, tables in object storage, but writing one still needed a Java cluster. Then it splits. The closed lakehouse: an open table format, but no direct access to the storage; you go through the vendor. The open lakehouse: a REST catalog, and any engine reads and writes the same tables, even a library in a Python process. All three are still here. This talk is about the bottom one.",
+  [...Array(TL_LAST + 1).keys()], timelineEls, { x: MX, y: 1.45, s: 0.01, f: 1 });
 {
   // The analogy: US railroads before and after the 1886 gauge change. The South's 5 ft track gives way to the
   // North's gauge on click 2, and the gap between them closes. The gauges are drawn wider apart than to scale.
