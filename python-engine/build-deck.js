@@ -878,26 +878,13 @@ const CAP_GRID = (() => {
 })();
 // Polars 2.1.0 on 25 Oct 2026, the reading in bench commit 7f66067 (run 40246131077): before its main build.
 const POLARS_BEFORE = { ok: 6, version: "2.1.0", date: "25 Oct" };
-function capEls(shown) {
-  const { total, items } = CAP_GRID, W = CW * 100, name = 200, lane = W - name - 220, rowH = Math.min(46, 385 / items.length);
-  const els = [Tx(0, 24, `Operations each engine does, out of the ${total} on the grid.`, { pt: 16, color: D.ink2 })];
-  if (!shown) return els;
-  items.forEach((it, i) => {
-    const y = 50 + i * rowH, bh = rowH * 0.66, cy = y + rowH / 2, d = i * 45, w = lane * (it.ok / total);
-    els.push(Tx(name - 16, cy + 7, LABEL[it.engine] ?? it.engine, { pt: 16, bold: true, color: D.ink, align: "r", w: 300, delay: d }));
-    els.push(R(name, cy - bh / 2, lane, bh, { fill: D.track, line: null, delay: d }));
-    els.push(R(name, cy - bh / 2, w, bh, { fill: ENGINE_COLOR[it.engine] || D.ink3, line: null, fx: "wipe", delay: d }));
-    els.push(Tx(name + lane + 14, cy + 6, `${it.ok} of ${total}`, { pt: 14, bold: true, color: D.ink, delay: d + 400 }));
-  });
-  return els;
-}
 {
+  // The dashboard's Iceberg support Overview (shots/crop_iceberg_overview.png): the grid's data, engines ranked by
+  // the operations they support, a segment per group. The notes and the caption count the same capability.json.
   const pl = CAP_GRID.items.find((i) => i.engine === "polars_iceberg"), sr = CAP_GRID.items.find((i) => i.engine === "starrocks_iceberg");
-  stepped("03 Engines", "Iceberg support, counted",
-    `From the Iceberg support tab, counted: every operation on the grid, run against the same catalog. ${CAP_GRID.items.map((i) => `${LABEL[i.engine]} ${i.ok}`).join(", ")}, out of ${CAP_GRID.total}. This moved a lot in the last two weeks. Polars ${POLARS_BEFORE.version} did ${POLARS_BEFORE.ok} on ${POLARS_BEFORE.date}; the Polars main build does ${pl.ok}: CREATE TABLE AS SELECT, INSERT, DELETE, TRUNCATE, INSERT OVERWRITE, partitioned tables and transforms, schema changes, concurrent writers. Still missing on Polars: ${CAP_GRID.missing("polars_iceberg").join(", ")}. StarRocks joined the grid at ${sr.ok}. A missing feature is now treated as a bug.`,
-    [false, true], (shown) => [...capEls(shown),
-      CAP(`Polars: ${POLARS_BEFORE.ok} on ${POLARS_BEFORE.date} (${POLARS_BEFORE.version}), ${pl.ok} now (main). StarRocks joined at ${sr.ok}.`)],
-    { x: MX, y: 1.45, s: 0.01, f: 1 });
+  shotSlide("03 Engines", "Iceberg support, ranked", "iceberg_overview",
+    `Polars: ${POLARS_BEFORE.ok} on ${POLARS_BEFORE.date} (${POLARS_BEFORE.version}), ${pl.ok} now (main). StarRocks joined at ${sr.ok}.`,
+    `From the Iceberg support Overview: every operation on the grid, run against the same catalog, one bar per engine, a segment per group. ${CAP_GRID.items.map((i) => `${LABEL[i.engine]} ${i.ok}`).join(", ")}, out of ${CAP_GRID.total}. This moved a lot in the last two weeks. Polars ${POLARS_BEFORE.version} did ${POLARS_BEFORE.ok} on ${POLARS_BEFORE.date}; the Polars main build does ${pl.ok}: CREATE TABLE AS SELECT, INSERT, DELETE, TRUNCATE, INSERT OVERWRITE, partitioned tables and transforms, schema changes, concurrent writers. Still missing on Polars: ${CAP_GRID.missing("polars_iceberg").join(", ")}. StarRocks joined the grid at ${sr.ok}. A missing feature is now treated as a bug.`);
 }
 shotSlide("03 Engines", "The Iceberg support grid", "iceberg", null,
   `Speed doesn't matter if the engine can't do your operation. The good news first: attach, create, append, DELETE, namespaces and concurrent appends work almost everywhere. Then the differences: who does UPDATE, MERGE with two actions, INSERT OVERWRITE, partition evolution, branches and tags, compaction. StarRocks is new on the grid: no UPDATE and no MERGE with two actions yet. Polars main closed most of its gaps in two weeks; still no UPDATE, MERGE or time travel. Pick on this, not on speed. Side note: Spark has the best fault tolerance and the widest coverage.`);

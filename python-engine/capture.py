@@ -61,6 +61,13 @@ def main():
                            + " ".join(f"#engines th:nth-child({n}), #engines td:nth-child({n}) {{ display: none }}" for n in (3, 4, 6, 7, 9, 10)))
         shoot(page, "engines", ["engines"])
 
+        # The Iceberg support Overview: the grid's data, engines ranked by the operations they support. Without the
+        # caption, as the grid below.
+        open_tab(page, "iceberg-overview")
+        page.add_style_tag(content="#iceberg-overview p.caption { display: none } #iceberg-overview { padding-top: 12px }")
+        page.wait_for_timeout(1000)
+        shoot(page, "iceberg_overview", ["iceberg-overview"])
+
         # Without the caption: it names the catalog, and the deck names it only on the disclosure slide.
         open_tab(page, "iceberg")
         page.add_style_tag(content="#iceberg p.caption { display: none }")

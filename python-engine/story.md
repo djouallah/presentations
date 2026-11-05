@@ -32,7 +32,7 @@ One slide, three themes, one per click. I gave this talk last year (Life Beyond 
 - Daft and pandas run the ETL only. Tried, not added: Apache Doris, Firebolt Core, DataFusion Comet, DataFusion, pg_lake, each with its reason on the Engines tab.
 - All of them talk to the same catalog. None of them needed anything special.
 - Speed doesn't matter if the engine can't do your operation.
-- **Iceberg support, counted** (capability.json, before the grid): one bar per engine, operations done out of 41. It moved a lot: Polars 2.1.0 did 6 on 25 Oct, Polars main 28 on 3 Nov; StarRocks joined the grid at 36.
+- **Iceberg support, ranked** (the dashboard's Iceberg support Overview, before the grid): engines ranked by operations supported out of 41, a segment per group. It moved a lot: Polars 2.1.0 did 6 on 25 Oct, Polars main 28 on 3 Nov; StarRocks joined the grid at 36.
 - The Iceberg grid. The good news first: create, append, file pruning, time travel and concurrent appends work almost everywhere. The catalog is the referee (section 1), and it works.
 - Then the differences: who does MERGE, DELETE, partition evolution, branches. Pick on this, not on speed.
 - Side note: Spark has the best fault tolerance and the widest coverage.
