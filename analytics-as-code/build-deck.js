@@ -426,13 +426,6 @@ const HOW = "C:/git/presentations/analytics-as-code/img/how/";
   s.addNotes("Storage is already decoupled from compute. The semantic model will be decoupled from compute too, from the BI tool and from the warehouse. At least with BI tools, we can already use multiple warehouses: the BI tool translates the model into each one's SQL. And there is now an open format for it: Apache Ossie, backed by the major industry vendors. The semantic model in this repo is an Ossie file. The technology matters less and less. The primitives matter, cost and performance matter, and AI will do the rest.\n\nBut you still need to understand the tests. And you still need to know the business and what your users actually want, which is not obvious at all.");
 }
 
-// ---------- 19. the end ----------
-{
-  const s = slide("BLANK");
-  s.addText("If I had had AI in 2019, I probably wouldn't be giving this talk.", { x: 1.2, y: 2.4, w: W - 2.4, h: 2.4, fontSize: 40, bold: true, color: C.text1, align: "left", valign: "middle", margin: 0, isTextBox: true, objectName: name() });
-  s.addNotes("If I had had AI in 2019, I probably wouldn't be giving this talk.\n\nNobody asked me to build any of this. I was just curious, and I loved figuring it out. Now AI does it in a minute. It's a bit sad, but it is what it is.\n\nSometimes the journey matters more than the destination. At least for a human.\n\n[Pause. A few seconds of silence, then: thank you.]");
-}
-
 // ---------- 21. thanks ----------
 {
   const s = slide("TITLE");
